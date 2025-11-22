@@ -15,4 +15,24 @@ class CampusView(mixins.ListModelMixin, mixins.RetrieveModelMixin, generics.Gene
         if "pk" in kwargs:
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
+
+class BuildingView(mixins.ListModelMixin, mixins.RetrieveModelMixin, generics.GenericAPIView):
+    serializer_class = BuildingSerializer
+    queryset = Building.objects.all()
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        if "pk" in kwargs:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
+
+class RoomView(mixins.ListModelMixin, mixins.RetrieveModelMixin, generics.GenericAPIView):
+    serializer_class = RoomSerializer
+    queryset = Room.objects.all()
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        if "pk" in kwargs:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
     
