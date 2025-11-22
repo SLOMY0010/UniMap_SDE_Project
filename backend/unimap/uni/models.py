@@ -15,6 +15,7 @@ class Building(models.Model):
     campus = models.ForeignKey(Campus, related_name='buildings')
     address = models.CharField(max_length=200, null=False, blank=False)
     maps_url = models.URLField(null=False, blank=False)
+    floors_num = models.PositiveIntegerField()
 
     class Meta:
         ordering = ['name']
