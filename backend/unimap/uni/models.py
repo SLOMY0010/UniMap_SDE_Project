@@ -5,14 +5,17 @@ class Campus(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
     address = models.CharField(max_length=200, null=False, blank=False)
     maps_url = models.URLField(null=False, blank=False)
-    image = models.ImageField(upload_to='images/campuses')
+    image = models.ImageField(upload_to='images/campuses', null=True, blank=True)
 
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return f"{self.id}. {self.name}"
+
 class Building(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
-    campus = models.ForeignKey(Campus, related_name='buildings')
+    campus = models.ForeignKey(Campus, related_name='buildings', on_delete=models.CASCADE)
     address = models.CharField(max_length=200, null=False, blank=False)
     maps_url = models.URLField(null=False, blank=False)
     floors_num = models.PositiveIntegerField()
@@ -20,11 +23,28 @@ class Building(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return f"{self.id}. {self.name}"
+
+ROOM_TYPES = {
+    "lecture hall": "Lecture Hall",
+    "laboratory": "Laboratory",
+    "seminar room": "Seminar Room",
+    "female washroom": "Female Washroom",
+    "male washroom": "Male Washroom",
+    "cafeteria": "Cafeteria"
+}
+    
+
+
 class Room(models.Model):
     name = models.CharField(max_length=50)
-    type = models.CharField(max_length=50)
+    type = models.CharField(max_length=50, choices=ROOM_TYPES)
     floor = models.SmallIntegerField()
-    building = models.ForeignKey(Building, related_name='rooms')
+    building = models.ForeignKey(Building, related_name='rooms', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['floor', 'name']
+
+    def __str__(self):
+        return f"Room: {self.name}, Floor: {self.floor} "
