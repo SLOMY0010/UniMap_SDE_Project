@@ -1,0 +1,17 @@
+
+
+Apps:
+
+1. api/users/
+    register/       POST
+    login/          POST
+    logout/         POST
+    chk-tkn/        GET
+
+2. api.uni/
+    campuses/                       GET
+    campuses/<int:pk>/              GET
+    buildings/                      GET
+    buildings/<int:pk>/             GET
+    rooms/                          GET
+    rooms/<int:pk>/                 GET
