@@ -44,31 +44,60 @@ class UniSearchView(APIView):
         query = request.query_params.get("q", "").strip()
 
         if not query:
-            return Response({
-                "error": "Query parameter 'q' is required."
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Query parameter 'q' is required."}, status=400)
 
-        # Search Campuses
-        campuses = Campus.objects.filter(
-            Q(name__icontains=query) |
-            Q(aliases__alias__icontains=query)
-        ).distinct()
-
-        # Search Buildings
-        buildings = Building.objects.filter(
-            Q(name__icontains=query) |
-            Q(aliases__alias__icontains=query)
-        ).distinct()
-
-        # Search Rooms
+        # STEP 1 — Search Rooms
         rooms = Room.objects.filter(
             Q(name__icontains=query) |
-            Q(aliases__alias__icontains=query)
+            Q(aliases__name__icontains=query)
         ).distinct()
 
+        if rooms.exists():
+            # Build parent building + campus sets
+            buildings = Building.objects.filter(id__in=rooms.values("building_id")).distinct()
+            campuses = Campus.objects.filter(id__in=buildings.values("campus_id")).distinct()
+
+            return Response({
+                "campuses": CampusSerializer(campuses, many=True).data,
+                "buildings": BuildingSerializer(buildings, many=True).data,
+                "rooms": RoomSerializer(rooms, many=True).data,
+                "matched_type": "room"
+            })
+
+        # STEP 2 — Search Buildings (only if no rooms matched)
+        buildings = Building.objects.filter(
+            Q(name__icontains=query) |
+            Q(aliases__name__icontains=query)
+        ).distinct()
+
+        if buildings.exists():
+            campuses = Campus.objects.filter(id__in=buildings.values("campus_id")).distinct()
+
+            return Response({
+                "campuses": CampusSerializer(campuses, many=True).data,
+                "buildings": BuildingSerializer(buildings, many=True).data,
+                "rooms": [],  # no rooms
+                "matched_type": "building"
+            })
+
+        # STEP 3 — Search Campuses (only if no rooms or buildings matched)
+        campuses = Campus.objects.filter(
+            Q(name__icontains=query) |
+            Q(aliases__name__icontains=query)
+        ).distinct()
+
+        if campuses.exists():
+            return Response({
+                "campuses": CampusSerializer(campuses, many=True).data,
+                "buildings": [],
+                "rooms": [],
+                "matched_type": "campus"
+            })
+
+        # Nothing matched
         return Response({
-            "campuses": CampusSerializer(campuses, many=True).data,
-            "buildings": BuildingSerializer(buildings, many=True).data,
-            "rooms": RoomSerializer(rooms, many=True).data,
+            "campuses": [],
+            "buildings": [],
+            "rooms": [],
+            "matched_type": None
         })
-    
