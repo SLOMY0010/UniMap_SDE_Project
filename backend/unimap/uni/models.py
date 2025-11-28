@@ -34,8 +34,15 @@ ROOM_TYPES = {
     "male washroom": "Male Washroom",
     "cafeteria": "Cafeteria"
 }
-    
 
+class Alias(models.Model):
+    campus = models.ForeignKey(Campus, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
+
+    alias = models.CharField(max_length=200)
+
+    class Meta:
+        unique_together = ('alias', 'building', 'campus')
 
 class Room(models.Model):
     name = models.CharField(max_length=50)
