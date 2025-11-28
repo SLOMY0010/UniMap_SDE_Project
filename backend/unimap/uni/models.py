@@ -35,15 +35,6 @@ ROOM_TYPES = {
     "cafeteria": "Cafeteria"
 }
 
-class Alias(models.Model):
-    campus = models.ForeignKey(Campus, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
-    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
-
-    alias = models.CharField(max_length=200)
-
-    class Meta:
-        unique_together = ('alias', 'building', 'campus')
-
 class Room(models.Model):
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, choices=ROOM_TYPES)
@@ -55,3 +46,27 @@ class Room(models.Model):
 
     def __str__(self):
         return f"Room: {self.name}, Floor: {self.floor} "
+
+class CampusAlias(models.Model):
+    campus = models.ForeignKey(Campus, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
+    alias = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f'Room Alias: {self.alias}'
+    
+class BuildingAlias(models.Model):
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
+    alias = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f'Building Alias: {self.alias}'
+
+class RoomAlias(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
+    alias = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f'Campus Alias: {self.alias}'
+
+
+

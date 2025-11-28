@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-hhx3aav=@dl*(poc9%xvgt3mmn&+l%nm6t%&6+z-x-s!p^71&j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+AUTH_USER_MODEL = "users.User"
+
 ALLOWED_HOSTS = []
 
 JWT_SECRET_KEY = 'secret_key_jwt'
