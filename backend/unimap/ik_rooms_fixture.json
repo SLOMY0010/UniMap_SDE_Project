@@ -1,0 +1,920 @@
+[
+  {
+    "model": "uni.campus",
+    "pk": 1,
+    "fields": {
+      "name": "Faculty of Informatics (IK)",
+      "address": "University of Debrecen, Informatics Faculty",
+      "maps_url": "https://maps.app.goo.gl/iFF62QPk77cNEBE96",
+      "image": null
+    }
+  },
+  {
+    "model": "uni.building",
+    "pk": 1,
+    "fields": {
+      "name": "IK Building",
+      "campus": 1,
+      "address": "Kassai út / Informatics Faculty",
+      "maps_url": "https://maps.app.goo.gl/fvTX5vETp6Fj9x978"
+    }
+  },
+
+  
+  {
+    "model": "uni.room",
+    "pk": 1001,
+    "fields": {
+      "name": "IF01",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1002,
+    "fields": {
+      "name": "IF02",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1003,
+    "fields": {
+      "name": "IF03",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1004,
+    "fields": {
+      "name": "IF05",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1005,
+    "fields": {
+      "name": "IF06",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1006,
+    "fields": {
+      "name": "IF07",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1007,
+    "fields": {
+      "name": "IF08",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1008,
+    "fields": {
+      "name": "IF09",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1009,
+    "fields": {
+      "name": "IF10",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1010,
+    "fields": {
+      "name": "IF11",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1011,
+    "fields": {
+      "name": "IF12",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1012,
+    "fields": {
+      "name": "IF13",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1013,
+    "fields": {
+      "name": "IF14",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1014,
+    "fields": {
+      "name": "IF15",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1015,
+    "fields": {
+      "name": "IF16",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1016,
+    "fields": {
+      "name": "IF20",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1017,
+    "fields": {
+      "name": "IF21",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1018,
+    "fields": {
+      "name": "IF22",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1019,
+    "fields": {
+      "name": "IF23",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1020,
+    "fields": {
+      "name": "IF24",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1021,
+    "fields": {
+      "name": "IF25",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1022,
+    "fields": {
+      "name": "IF26",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 1023,
+    "fields": {
+      "name": "IF32",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+
+  
+  {
+    "model": "uni.room",
+    "pk": 2001,
+    "fields": {
+      "name": "I102",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2002,
+    "fields": {
+      "name": "I103",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2003,
+    "fields": {
+      "name": "I104",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2004,
+    "fields": {
+      "name": "I105",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2005,
+    "fields": {
+      "name": "I106",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2006,
+    "fields": {
+      "name": "I107",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2007,
+    "fields": {
+      "name": "I110",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2008,
+    "fields": {
+      "name": "I111",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2009,
+    "fields": {
+      "name": "I112",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2010,
+    "fields": {
+      "name": "I113",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2011,
+    "fields": {
+      "name": "I114",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2012,
+    "fields": {
+      "name": "I115",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2013,
+    "fields": {
+      "name": "I116",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2014,
+    "fields": {
+      "name": "I117",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2015,
+    "fields": {
+      "name": "I120",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2016,
+    "fields": {
+      "name": "I121",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2017,
+    "fields": {
+      "name": "I122",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2018,
+    "fields": {
+      "name": "I123",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2019,
+    "fields": {
+      "name": "I124",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2020,
+    "fields": {
+      "name": "I125",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2021,
+    "fields": {
+      "name": "I126",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2022,
+    "fields": {
+      "name": "I127",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2023,
+    "fields": {
+      "name": "I128",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2024,
+    "fields": {
+      "name": "I129",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2025,
+    "fields": {
+      "name": "I130",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 2026,
+    "fields": {
+      "name": "I132",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+
+  
+  {
+    "model": "uni.room",
+    "pk": 3001,
+    "fields": {
+      "name": "I201",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3002,
+    "fields": {
+      "name": "I202",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3003,
+    "fields": {
+      "name": "I203",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3004,
+    "fields": {
+      "name": "I204",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3005,
+    "fields": {
+      "name": "I205",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3006,
+    "fields": {
+      "name": "I206",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3007,
+    "fields": {
+      "name": "I207",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3008,
+    "fields": {
+      "name": "I210",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3009,
+    "fields": {
+      "name": "I211",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3010,
+    "fields": {
+      "name": "I212",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3011,
+    "fields": {
+      "name": "I213",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3012,
+    "fields": {
+      "name": "I214",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3013,
+    "fields": {
+      "name": "I215",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3014,
+    "fields": {
+      "name": "I216",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3015,
+    "fields": {
+      "name": "I217",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3016,
+    "fields": {
+      "name": "I220",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3017,
+    "fields": {
+      "name": "I221",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3018,
+    "fields": {
+      "name": "I222",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3019,
+    "fields": {
+      "name": "I223",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3020,
+    "fields": {
+      "name": "I224",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3021,
+    "fields": {
+      "name": "I225",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3022,
+    "fields": {
+      "name": "I226",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3023,
+    "fields": {
+      "name": "I227",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3024,
+    "fields": {
+      "name": "I228",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3025,
+    "fields": {
+      "name": "I229",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3026,
+    "fields": {
+      "name": "I230",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3027,
+    "fields": {
+      "name": "I231",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 3028,
+    "fields": {
+      "name": "I232",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+
+  
+  {
+    "model": "uni.room",
+    "pk": 4001,
+    "fields": {
+      "name": "I310",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4002,
+    "fields": {
+      "name": "I311",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4003,
+    "fields": {
+      "name": "I312",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4004,
+    "fields": {
+      "name": "I320",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4005,
+    "fields": {
+      "name": "I321",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4006,
+    "fields": {
+      "name": "I322",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4007,
+    "fields": {
+      "name": "I323",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4008,
+    "fields": {
+      "name": "I324",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4009,
+    "fields": {
+      "name": "I325",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4010,
+    "fields": {
+      "name": "I330",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4011,
+    "fields": {
+      "name": "I332",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  },
+  {
+    "model": "uni.room",
+    "pk": 4012,
+    "fields": {
+      "name": "I333",
+      "type": "seminar room",
+      "floor_map": null,
+      "building": 1
+    }
+  }
+]
