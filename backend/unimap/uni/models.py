@@ -37,7 +37,7 @@ ROOM_TYPES = {
 class Room(models.Model):
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, choices=ROOM_TYPES)
-    floor_map = models.ForeignKey('FloorMap', on_delete=models.CASCADE, related_name='rooms', blank=True, null=True)
+    floor_map = models.ForeignKey('FloorMap', on_delete=models.SET_NULL, related_name='rooms', blank=True, null=True)
     building = models.ForeignKey(Building, related_name='rooms', on_delete=models.CASCADE)
     map_x = models.FloatField(blank=True, null=True)
     map_y = models.FloatField(blank=True, null=True)
