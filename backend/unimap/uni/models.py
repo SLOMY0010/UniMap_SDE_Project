@@ -9,6 +9,7 @@ class Campus(models.Model):
 
     class Meta:
         ordering = ['name']
+        verbose_name_plural = 'Campuses'
 
     def __str__(self):
         return f"{self.id}. {self.name}"
@@ -53,27 +54,39 @@ class FloorMap(models.Model):
     floor_number = models.IntegerField()
     image = models.ImageField(upload_to="images/floor_maps/")
 
+    def __str__(self):
+        return f'{self.building} > Floor: {self.floor_number}'
+
 
 class CampusAlias(models.Model):
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
-    alias = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'Room Alias: {self.alias}'
+        return f'Campus Alias: {self.name}'
+
+    class Meta:
+        verbose_name_plural = 'Campus Aliases'
     
 class BuildingAlias(models.Model):
     building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
-    alias = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'Building Alias: {self.alias}'
+        return f'Building Alias: {self.name}'
+    
+    class Meta:
+        verbose_name_plural = 'Building Aliases'
 
 class RoomAlias(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='aliases', null=True, blank=True)
-    alias = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'Campus Alias: {self.alias}'
+        return f'Room Alias: {self.name}'
+    
+    class Meta:
+        verbose_name_plural = 'Room Aliases'
 
 
 

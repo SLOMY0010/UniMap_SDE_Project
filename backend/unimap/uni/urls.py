@@ -8,4 +8,6 @@ urlpatterns = [
     path('buildings/<int:pk>/', BuildingView.as_view()),
     path('rooms/', RoomView.as_view()),
     path('rooms/<int:pk>/', RoomView.as_view()),
+
+    path('search/', UniSearchView.as_view()),
 ]

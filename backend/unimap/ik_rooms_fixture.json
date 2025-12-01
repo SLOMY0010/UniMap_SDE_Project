@@ -1,27 +1,5 @@
 [
   {
-    "model": "uni.campus",
-    "pk": 1,
-    "fields": {
-      "name": "Faculty of Informatics (IK)",
-      "address": "University of Debrecen, Informatics Faculty",
-      "maps_url": "https://maps.app.goo.gl/iFF62QPk77cNEBE96",
-      "image": null
-    }
-  },
-  {
-    "model": "uni.building",
-    "pk": 1,
-    "fields": {
-      "name": "IK Building",
-      "campus": 1,
-      "address": "Kassai út / Informatics Faculty",
-      "maps_url": "https://maps.app.goo.gl/fvTX5vETp6Fj9x978"
-    }
-  },
-
-  
-  {
     "model": "uni.room",
     "pk": 1001,
     "fields": {
