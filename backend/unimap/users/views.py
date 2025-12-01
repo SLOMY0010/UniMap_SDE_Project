@@ -24,6 +24,7 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         user.is_active = True
+        user.set_password(request.data.get('password'))
         user.save()
 
         response = Response()
