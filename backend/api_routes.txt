@@ -15,3 +15,5 @@ Apps:
     buildings/<int:pk>/             GET
     rooms/                          GET
     rooms/<int:pk>/                 GET
+
+    search?q=<search>                GET
