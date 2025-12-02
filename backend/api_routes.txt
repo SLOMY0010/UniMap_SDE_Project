@@ -7,6 +7,7 @@ Apps:
     login/          POST
     logout/         POST
     chk-tkn/        GET
+    user-stat/      GET
 
 2. api/uni/
     campuses/                       GET
