@@ -1,5 +1,28 @@
-venv/*
-venv
-.env
-db*
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
 db.sqlite3
+
+# Django
+*.log
+*.pot
+*.pyc
+*.mo
+*.swp
+*.swo
+*.bak
+local_settings.py
+.env
+logs
+*.log
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# VSCode
+.vscode/
