@@ -8,7 +8,7 @@ Apps:
     logout/         POST
     chk-tkn/        GET
 
-2. api.uni/
+2. api/uni/
     campuses/                       GET
     campuses/<int:pk>/              GET
     buildings/                      GET
@@ -17,3 +17,10 @@ Apps:
     rooms/<int:pk>/                 GET
 
     search?q=<search>                GET
+    
+3. api/booking/
+    mybookings/                     GET/POST/
+    mybookings/<int:pk>/            PATCH
+
+    admin/bookings/                 GET
+    admin/bookings/<int:pk>/        GET/PATCH
