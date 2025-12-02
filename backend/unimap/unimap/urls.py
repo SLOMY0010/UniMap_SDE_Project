@@ -23,5 +23,5 @@ urlpatterns = [
     path('api/uni/', include('uni.urls')),
     path('api/users/', include('users.urls')),
     path('api/booking/', include('booking.urls')),
-    #path('api/class_schedule/', include('class_schedule.urls')),
+    path('api/class_schedule/', include('class_schedule.urls')),
 ]

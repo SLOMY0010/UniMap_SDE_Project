@@ -1,17 +1,16 @@
 # class_schedule/utils.py
-import logging
+from django.utils import timezone
+from django.db import transaction
+from .models import CalendarEvent
+
 from datetime import datetime, date
-from io import BytesIO
 
 import requests
 from icalendar import Calendar, Event
 from dateutil import parser as date_parser
 from django.utils import timezone
 
-logger = logging.getLogger(__name__)
-
-
-def fetch_ics(url, timeout=15):
+def fetch_ics(url, timeout=60):
     """
     Fetch ICS content from URL. Raises requests exceptions on failures.
     """
@@ -91,3 +90,51 @@ def parse_ics_bytes(ics_bytes, default_tz=None):
         })
 
     return events
+
+
+def sync_user_calendar_now(user_calendar):
+    """
+    Fetch ICS from user_calendar.source_link and store/update events once.
+    """
+    if not user_calendar.source_link:
+        return {"created": 0, "updated": 0}
+
+    ics_bytes = fetch_ics(user_calendar.source_link)
+    events = parse_ics_bytes(ics_bytes)
+
+    created = 0
+    updated = 0
+
+    with transaction.atomic():
+        for ev in events:
+            if ev["uid"]:
+                obj, created_flag = CalendarEvent.objects.update_or_create(
+                    user=user_calendar.user,
+                    source_uid=ev["uid"],
+                    defaults={
+                        "title": ev["summary"],
+                        "description": ev["description"],
+                        "location": ev["location"],
+                        "start": ev["start"],
+                        "end": ev["end"],
+                        "raw_ics": ev["raw"],
+                    },
+                )
+                if created_flag:
+                    created += 1
+                else:
+                    updated += 1
+            else:
+                CalendarEvent.objects.create(
+                    user=user_calendar.user,
+                    source_uid=None,
+                    title=ev["summary"],
+                    description=ev["description"],
+                    location=ev["location"],
+                    start=ev["start"],
+                    end=ev["end"],
+                    raw_ics=ev["raw"],
+                )
+                created += 1
+
+    return {"created": created, "updated": updated}
