@@ -24,3 +24,7 @@ Apps:
 
     admin/bookings/                 GET
     admin/bookings/<int:pk>/        GET/PATCH
+
+4. api/class_schedule
+    upload/                         POST // Upload .ics file
+    my_events/                      GET
