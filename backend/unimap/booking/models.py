@@ -32,3 +32,6 @@ class Booking(models.Model):
     class Meta:
         ordering = ["-created_at"]
         unique_together = ("room", "date", "start_time", "end_time")
+
+    def __str__(self):
+        return f"{self.room} on {self.date}"

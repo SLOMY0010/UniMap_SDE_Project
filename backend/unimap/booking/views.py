@@ -40,7 +40,7 @@ class BookingView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Retri
         )
 
         if conflicts.exists():
-            return Response({"message": "Room already booked."}, status=400)
+            raise ValidationError({"message": "Room already booked."})
 
         user = self.request.user
 
@@ -50,7 +50,7 @@ class BookingView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Retri
             user=user
         )
         if conflicts.exists():
-            return Response({"message": "You can't be in two places at once."}, status=400)
+            raise ValidationError({"message": "You can't be in two places at once."})
 
         serializer.save(user=self.request.user)
 
