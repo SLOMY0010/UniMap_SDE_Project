@@ -154,3 +154,10 @@ class UserView(mixins.ListModelMixin, mixins.RetrieveModelMixin, generics.Generi
         if "pk" in kwargs:
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
+
+class UserStatView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return User.objects.get(pk=self.request.user.id)

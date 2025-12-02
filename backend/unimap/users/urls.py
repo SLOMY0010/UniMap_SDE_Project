@@ -11,5 +11,7 @@ urlpatterns = [
     path('logout/', LogoutView.as_view()),
     path('chk-tkn/', TokenRemainingTimeView.as_view()),
 
+    path('user-stat/', UserStatView.as_view()),
+
     
 ]
