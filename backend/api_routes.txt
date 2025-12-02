@@ -8,10 +8,17 @@ Apps:
     logout/         POST
     chk-tkn/        GET
 
-2. api.uni/
+2. api/uni/
     campuses/                       GET
     campuses/<int:pk>/              GET
     buildings/                      GET
     buildings/<int:pk>/             GET
     rooms/                          GET
     rooms/<int:pk>/                 GET
+
+3. api/booking/
+    mybookings/                     GET/POST/
+    mybookings/<int:pk>/            PATCH
+
+    admin/bookings/                 GET
+    admin/bookings/<int:pk>/        GET/PATCH
