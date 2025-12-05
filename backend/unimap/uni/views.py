@@ -38,6 +38,15 @@ class RoomView(mixins.ListModelMixin, mixins.RetrieveModelMixin, generics.Generi
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
     
+class FloorMapView(mixins.ListModelMixin, mixins.RetrieveModelMixin, generics.GenericAPIView):
+    serializer_class = FloorMapSerializer
+    queryset = FloorMap.objects.all()
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        if "pk" in kwargs:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
 
 class UniSearchView(APIView):
     def get(self, request):

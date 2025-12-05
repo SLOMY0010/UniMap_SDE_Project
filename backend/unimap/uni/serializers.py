@@ -15,3 +15,8 @@ class RoomSerializer(ModelSerializer):
     class Meta:
         model = Room
         fields = '__all__'
+
+class FloorMapSerializer(ModelSerializer):
+    class Meta:
+        model = FloorMap
+        fields = '__all__'
