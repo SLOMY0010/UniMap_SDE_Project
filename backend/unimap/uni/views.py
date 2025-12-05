@@ -39,7 +39,7 @@ class RoomView(mixins.ListModelMixin, mixins.RetrieveModelMixin, generics.Generi
         return self.list(request, *args, **kwargs)
     
 class FloorMapView(mixins.ListModelMixin, mixins.RetrieveModelMixin, generics.GenericAPIView):
-    serializer_class = RoomSerializer
+    serializer_class = FloorMapSerializer
     queryset = FloorMap.objects.all()
     permission_classes = [AllowAny]
 
