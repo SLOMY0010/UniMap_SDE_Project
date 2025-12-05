@@ -1,6 +1,8 @@
-import { ArrowLeft, MapPin, Building, Users, GraduationCap, Cpu, Atom, Calculator, X } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, MapPin, Building, Cpu, Atom, Calculator } from 'lucide-react';
+ // Removed unused icons
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import api from '@/utils/api';
 
 interface KassaiCampusProps {
   onBack: () => void;

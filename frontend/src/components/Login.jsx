@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import logoImage from "figma:asset/3377312f0bb7ddd1aa5296a07ac4c8b8453a8ede.png";
+import logoImage from "../asset/3377312f0bb7ddd1aa5296a07ac4c8b8453a8ede.png";
 
 export default function Login({ onBack, onRegisterClick }) {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ export default function Login({ onBack, onRegisterClick }) {
   const [error, setError] = useState("");
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Made async
     e.preventDefault();
     setError("");
 
@@ -28,11 +28,11 @@ export default function Login({ onBack, onRegisterClick }) {
       return;
     }
 
-    const success = login(email, password);
+    const success = await login(email, password); // Await the login call
     if (success) {
-      onBack();
+      onBack(); // Redirect on successful login
     } else {
-      setError("Invalid credentials");
+      setError("Invalid credentials or server error. Please try again.");
     }
   };
 

@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, BookOpen, Calendar, DoorOpen, HelpCircle, Mail } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import logoImage from 'figma:asset/3377312f0bb7ddd1aa5296a07ac4c8b8453a8ede.png';
+import logoImage from '../../asset/3377312f0bb7ddd1aa5296a07ac4c8b8453a8ede.png';
 
 export default function Sidebar({ currentPage, setCurrentPage, collapsed, setCollapsed }) {
   const navItems = [

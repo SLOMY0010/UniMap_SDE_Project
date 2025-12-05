@@ -11,32 +11,39 @@ import {
   GraduationCap,
   Coffee,
   Mic,
-  Calendar1,
   List,
   Grid3X3,
-  Filter,
   Search,
-  X,
   Edit3,
   Trash2,
-  Bell
+  Bell,
+  Upload
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import api from '@/utils/api';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from './ui/dialog';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Button } from './ui/button';
 
 interface CalendarProps {
   onBack: () => void;
 }
 
-interface Event {
+interface BackendEvent {
   id: string;
   title: string;
-  date: Date;
-  time: string;
+  description: string;
   location: string;
-  category: 'class' | 'exam' | 'meeting' | 'social' | 'seminar' | 'deadline';
-  description?: string;
-  attendees?: number;
+  start: string; // ISO 8601 string
+  end: string;   // ISO 8601 string
+}
+
+interface Event extends BackendEvent {
+  date: Date; // Converted from start string
+  time: string; // Derived from start string
+  category: 'class' | 'exam' | 'meeting' | 'social' | 'seminar' | 'deadline' | 'other'; // Categorize based on title/description
 }
 
 const eventCategories = {
@@ -45,78 +52,52 @@ const eventCategories = {
   meeting: { color: 'bg-purple-500', icon: <Users size={14} />, name: 'Meeting' },
   social: { color: 'bg-green-500', icon: <Coffee size={14} />, name: 'Social' },
   seminar: { color: 'bg-orange-500', icon: <Mic size={14} />, name: 'Seminar' },
-  deadline: { color: 'bg-pink-500', icon: <Clock size={14} />, name: 'Deadline' }
+  deadline: { color: 'bg-pink-500', icon: <Clock size={14} />, name: 'Deadline' },
+  other: { color: 'bg-gray-500', icon: <CalendarIcon size={14} />, name: 'Other' }
 };
 
-// Sample events for University of Debrecen
-const sampleEvents: Event[] = [
-  {
-    id: '1',
-    title: 'Introduction to European Law',
-    date: new Date(2025, 0, 15), // January 15, 2025
-    time: '10:00 AM',
-    location: 'Law Faculty, Room 201',
-    category: 'class',
-    description: 'Weekly lecture on European Union law fundamentals',
-    attendees: 45
-  },
-  {
-    id: '2',
-    title: 'Midterm Exam - Mathematics',
-    date: new Date(2025, 0, 18),
-    time: '2:00 PM',
-    location: 'Kassai Campus, Hall A',
-    category: 'exam',
-    description: 'Calculus and Linear Algebra midterm examination'
-  },
-  {
-    id: '3',
-    title: 'Student Council Meeting',
-    date: new Date(2025, 0, 20),
-    time: '6:00 PM',
-    location: 'Main Campus, Conference Room',
-    category: 'meeting',
-    description: 'Monthly student council meeting to discuss campus issues',
-    attendees: 12
-  },
-  {
-    id: '4',
-    title: 'International Student Welcome Event',
-    date: new Date(2025, 0, 22),
-    time: '7:00 PM',
-    location: 'University Cultural Center',
-    category: 'social',
-    description: 'Welcome party for new international students',
-    attendees: 120
-  },
-  {
-    id: '5',
-    title: 'Research Paper Submission',
-    date: new Date(2025, 0, 25),
-    time: '11:59 PM',
-    location: 'Online Submission',
-    category: 'deadline',
-    description: 'Final deadline for submitting research proposals'
-  },
-  {
-    id: '6',
-    title: 'Digital Innovation Seminar',
-    date: new Date(2025, 0, 28),
-    time: '3:00 PM',
-    location: 'Informatics Faculty, Auditorium',
-    category: 'seminar',
-    description: 'Guest speakers on AI and digital transformation',
-    attendees: 80
+const categorizeEvent = (event: BackendEvent): Event => {
+  let category: Event['category'] = 'other';
+  const lowerTitle = event.title.toLowerCase();
+  const lowerDescription = event.description ? event.description.toLowerCase() : '';
+
+  if (lowerTitle.includes('exam') || lowerDescription.includes('exam')) {
+    category = 'exam';
+  } else if (lowerTitle.includes('class') || lowerTitle.includes('lecture') || lowerDescription.includes('class')) {
+    category = 'class';
+  } else if (lowerTitle.includes('meeting') || lowerDescription.includes('meeting')) {
+    category = 'meeting';
+  } else if (lowerTitle.includes('social') || lowerTitle.includes('party')) {
+    category = 'social';
+  } else if (lowerTitle.includes('seminar') || lowerDescription.includes('seminar')) {
+    category = 'seminar';
+  } else if (lowerTitle.includes('deadline') || lowerTitle.includes('submit')) {
+    category = 'deadline';
   }
-];
+
+  const startDate = new Date(event.start);
+  const startTime = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  return {
+    ...event,
+    date: startDate,
+    time: startTime,
+    category,
+  };
+};
 
 export default function Calendar({ onBack }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState<Event[]>(sampleEvents);
+  const [events, setEvents] = useState<Event[]>([]);
   const [view, setView] = useState<'month' | 'list'>('month');
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -126,6 +107,33 @@ export default function Calendar({ onBack }: CalendarProps) {
   ];
   
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const fetchEvents = async (date: Date) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const startDate = new Date(year, month, 1);
+      const endDate = new Date(year, month + 1, 0);
+
+      const params = new URLSearchParams({
+        start: startDate.toISOString(),
+        end: endDate.toISOString(),
+      });
+      const response = await api.get<BackendEvent[]>(`/class_schedule/my_events/?${params.toString()}`);
+      setEvents(response.data.map(categorizeEvent));
+    } catch (err) {
+      setError('Failed to fetch events.');
+      console.error('Error fetching events:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents(currentDate);
+  }, [currentDate]);
   
   // Get first day of month and number of days
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -164,30 +172,69 @@ export default function Calendar({ onBack }: CalendarProps) {
   // Get events for a specific day
   const getEventsForDay = (day: number) => {
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate.getDate() === day &&
-             eventDate.getMonth() === currentDate.getMonth() &&
-             eventDate.getFullYear() === currentDate.getFullYear();
+      return event.date.getDate() === day &&
+             event.date.getMonth() === currentDate.getMonth() &&
+             event.date.getFullYear() === currentDate.getFullYear();
     });
   };
 
   // Filter events based on search and category
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.location.toLowerCase().includes(searchTerm.toLowerCase());
+                         event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = filterCategory === 'all' || event.category === filterCategory;
     return matchesSearch && matchesCategory;
-  });
+  }).sort((a, b) => a.date.getTime() - b.date.getTime()); // Sort for list view
 
   // Get upcoming events (next 7 days)
   const getUpcomingEvents = () => {
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Normalize to start of today
     const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return eventDate >= now && eventDate <= nextWeek;
-    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      return event.date >= now && event.date <= nextWeek;
+    }).sort((a, b) => a.date.getTime() - b.date.getTime());
   };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setUploadFile(event.target.files[0]);
+    }
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!uploadFile) {
+      setUploadError('Please select an ICS file to upload.');
+      return;
+    }
+
+    setUploadError(null);
+    setUploadSuccess(null);
+
+    const formData = new FormData();
+    formData.append('file', uploadFile);
+
+    try {
+      const response = await api.post('/class_schedule/upload/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setUploadSuccess(`Successfully uploaded! Created: ${response.data.created}, Updated: ${response.data.updated}`);
+      setShowUploadModal(false);
+      setUploadFile(null);
+      fetchEvents(currentDate); // Refresh events
+    } catch (err: any) {
+      console.error('ICS upload failed:', err);
+      if (err.response && err.response.data) {
+        setUploadError(err.response.data.detail || 'Failed to upload ICS file.');
+      } else {
+        setUploadError('Failed to upload ICS file. Please try again.');
+      }
+    }
+  };
+
 
   return (
     <div className="flex-1 flex flex-col px-8 py-8">
@@ -239,12 +286,12 @@ export default function Calendar({ onBack }: CalendarProps) {
         <div className="flex items-center gap-3">
           <div className="relative">
             <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
+            <Input
               type="text"
               placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2"
             />
           </div>
           
@@ -259,251 +306,290 @@ export default function Calendar({ onBack }: CalendarProps) {
             ))}
           </select>
 
-          <button
-            onClick={() => setShowEventModal(true)}
+          <Button
+            onClick={() => setShowUploadModal(true)} // Changed to open upload modal
             className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
           >
-            <Plus size={16} />
-            Add Event
-          </button>
+            <Upload size={16} />
+            Upload ICS
+          </Button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Calendar/List View */}
-        <div className="lg:col-span-2">
-          {view === 'month' ? (
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              {/* Calendar Header */}
-              <div className="flex items-center justify-between mb-6">
-                <button 
-                  onClick={goToPreviousMonth}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <ChevronLeft size={24} className="text-gray-600" />
-                </button>
-                
-                <h2 className="text-2xl text-gray-800">
-                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-                </h2>
-                
-                <button 
-                  onClick={goToNextMonth}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <ChevronRight size={24} className="text-gray-600" />
-                </button>
-              </div>
+      {loading ? (
+        <div className="text-center py-8">Loading events...</div>
+      ) : error ? (
+        <div className="text-center py-8 text-red-500">{error}</div>
+      ) : (
+        /* Main Content */
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Calendar/List View */}
+          <div className="lg:col-span-2">
+            {view === 'month' ? (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                {/* Calendar Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <button 
+                    onClick={goToPreviousMonth}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <ChevronLeft size={24} className="text-gray-600" />
+                  </button>
+                  
+                  <h2 className="text-2xl text-gray-800">
+                    {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                  </h2>
+                  
+                  <button 
+                    onClick={goToNextMonth}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <ChevronRight size={24} className="text-gray-600" />
+                  </button>
+                </div>
 
-              {/* Days of Week Header */}
-              <div className="grid grid-cols-7 gap-2 mb-4">
-                {daysOfWeek.map((day) => (
-                  <div key={day} className="text-center py-2 text-gray-600 text-sm">
-                    {day}
+                {/* Days of Week Header */}
+                <div className="grid grid-cols-7 gap-2 mb-4">
+                  {daysOfWeek.map((day) => (
+                    <div key={day} className="text-center py-2 text-gray-600 text-sm">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calendar Grid */}
+                <div className="grid grid-cols-7 gap-2">
+                  {calendarDays.map((day, index) => {
+                    const dayEvents = day ? getEventsForDay(day) : [];
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => day && setSelectedDay(day)}
+                        className={`
+                          min-h-[80px] p-2 rounded-lg cursor-pointer transition-all border
+                          ${day === null ? 'invisible' : 'hover:bg-gray-50 border-gray-200'}
+                          ${isToday(day || 0) ? 'bg-green-50 border-green-300' : ''}
+                          ${selectedDay === day ? 'ring-2 ring-green-400' : ''}
+                        `}
+                      >
+                        {day && (
+                          <>
+                            <div className={`text-sm mb-1 ${isToday(day) ? 'text-green-600' : 'text-gray-700'}`}>
+                              {day}
+                            </div>
+                            <div className="space-y-1">
+                              {dayEvents.slice(0, 2).map((event) => (
+                                <div
+                                  key={event.id}
+                                  className={`text-xs px-2 py-1 rounded text-white truncate ${eventCategories[event.category].color}`}
+                                >
+                                  {event.title}
+                                </div>
+                              ))}
+                              {dayEvents.length > 2 && (
+                                <div className="text-xs text-gray-500">
+                                  +{dayEvents.length - 2} more
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h2 className="text-2xl text-gray-800 mb-6">Event List</h2>
+                <div className="space-y-4">
+                  {filteredEvents.length === 0 ? (
+                    <p className="text-center text-muted-foreground">No events found for this view.</p>
+                  ) : (
+                    filteredEvents.map((event) => (
+                      <div key={event.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3">
+                            <div className={`p-2 rounded-lg text-white ${eventCategories[event.category].color}`}>
+                              {eventCategories[event.category].icon}
+                            </div>
+                            <div>
+                              <h3 className="text-lg text-gray-800">{event.title}</h3>
+                              <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                                <span className="flex items-center gap-1">
+                                  <CalendarIcon size={14} />
+                                  {event.date.toLocaleDateString()}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock size={14} />
+                                  {event.time}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <MapPin size={14} />
+                                  {event.location}
+                                </span>
+                              </div>
+                              {event.description && (
+                                <p className="text-sm text-gray-600 mt-2">{event.description}</p>
+                              )}
+                            </div>
+                          </div>
+                          {/* Edit/Delete functionality (if applicable in backend) */}
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              // onClick={() => { setEditingEvent(event); setShowEventModal(true); }}
+                              className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
+                            >
+                              <Edit3 size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              // onClick={() => handleDeleteEvent(event.id)}
+                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Stats */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-lg text-gray-800 mb-4">Quick Overview</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Total Events</span>
+                  <span className="text-lg text-gray-800">{events.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">This Month</span>
+                  <span className="text-lg text-green-600">
+                    {events.filter(e => {
+                      return e.date.getMonth() === currentDate.getMonth() &&
+                             e.date.getFullYear() === currentDate.getFullYear();
+                    }).length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Upcoming Week</span>
+                  <span className="text-lg text-blue-600">{getUpcomingEvents().length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Upcoming Events */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-lg text-gray-800 mb-4 flex items-center gap-2">
+                <Bell size={18} />
+                Upcoming Events
+              </h3>
+              <div className="space-y-3">
+                {getUpcomingEvents().slice(0, 5).map((event) => (
+                  <div key={event.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className={`p-1 rounded text-white ${eventCategories[event.category].color}`}>
+                      {eventCategories[event.category].icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-800 truncate">{event.title}</p>
+                      <p className="text-xs text-gray-600">
+                        {event.date.toLocaleDateString()} at {event.time}
+                      </p>
+                    </div>
                   </div>
                 ))}
+                {getUpcomingEvents().length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No upcoming events this week
+                  </p>
+                )}
               </div>
+            </div>
 
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-2">
-                {calendarDays.map((day, index) => {
-                  const dayEvents = day ? getEventsForDay(day) : [];
+            {/* Event Categories */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="text-lg text-gray-800 mb-4">Event Categories</h3>
+              <div className="space-y-2">
+                {Object.entries(eventCategories).map(([key, category]) => {
+                  const count = events.filter(e => e.category === key).length;
                   return (
-                    <div
-                      key={index}
-                      onClick={() => day && setSelectedDay(day)}
-                      className={`
-                        min-h-[80px] p-2 rounded-lg cursor-pointer transition-all border
-                        ${day === null ? 'invisible' : 'hover:bg-gray-50 border-gray-200'}
-                        ${isToday(day || 0) ? 'bg-green-50 border-green-300' : ''}
-                        ${selectedDay === day ? 'ring-2 ring-green-400' : ''}
-                      `}
-                    >
-                      {day && (
-                        <>
-                          <div className={`text-sm mb-1 ${isToday(day) ? 'text-green-600' : 'text-gray-700'}`}>
-                            {day}
-                          </div>
-                          <div className="space-y-1">
-                            {dayEvents.slice(0, 2).map((event) => (
-                              <div
-                                key={event.id}
-                                className={`text-xs px-2 py-1 rounded text-white truncate ${eventCategories[event.category].color}`}
-                              >
-                                {event.title}
-                              </div>
-                            ))}
-                            {dayEvents.length > 2 && (
-                              <div className="text-xs text-gray-500">
-                                +{dayEvents.length - 2} more
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      )}
+                    <div key={key} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
+                        <span className="text-sm text-gray-700">{category.name}</span>
+                      </div>
+                      <span className="text-sm text-gray-500">{count}</span>
                     </div>
                   );
                 })}
               </div>
             </div>
-          ) : (
+
+            {/* Academic Calendar Links */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-2xl text-gray-800 mb-6">Event List</h2>
-              <div className="space-y-4">
-                {filteredEvents.map((event) => (
-                  <div key={event.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg text-white ${eventCategories[event.category].color}`}>
-                          {eventCategories[event.category].icon}
-                        </div>
-                        <div>
-                          <h3 className="text-lg text-gray-800">{event.title}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                            <span className="flex items-center gap-1">
-                              <Calendar1 size={14} />
-                              {event.date.toLocaleDateString()}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock size={14} />
-                              {event.time}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin size={14} />
-                              {event.location}
-                            </span>
-                            {event.attendees && (
-                              <span className="flex items-center gap-1">
-                                <Users size={14} />
-                                {event.attendees}
-                              </span>
-                            )}
-                          </div>
-                          {event.description && (
-                            <p className="text-sm text-gray-600 mt-2">{event.description}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            setEditingEvent(event);
-                            setShowEventModal(true);
-                          }}
-                          className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
-                        >
-                          <Edit3 size={16} />
-                        </button>
-                        <button
-                          onClick={() => setEvents(events.filter(e => e.id !== event.id))}
-                          className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <h3 className="text-lg text-gray-800 mb-4">Academic Resources</h3>
+              <div className="space-y-3">
+                <Button className="w-full text-left p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors">
+                  <div className="text-sm text-blue-700">University Academic Calendar</div>
+                  <div className="text-xs text-blue-600">View official dates</div>
+                </Button>
+                <Button className="w-full text-left p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">
+                  <div className="text-sm text-green-700">Exam Schedules</div>
+                  <div className="text-xs text-green-600">Check exam dates</div>
+                </Button>
+                <Button className="w-full text-left p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors">
+                  <div className="text-sm text-purple-700">Course Registration</div>
+                  <div className="text-xs text-purple-600">Register for courses</div>
+                </Button>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Quick Stats */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h3 className="text-lg text-gray-800 mb-4">Quick Overview</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Total Events</span>
-                <span className="text-lg text-gray-800">{events.length}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">This Month</span>
-                <span className="text-lg text-green-600">
-                  {events.filter(e => {
-                    const eventDate = new Date(e.date);
-                    return eventDate.getMonth() === currentDate.getMonth() &&
-                           eventDate.getFullYear() === currentDate.getFullYear();
-                  }).length}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Upcoming Week</span>
-                <span className="text-lg text-blue-600">{getUpcomingEvents().length}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Upcoming Events */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h3 className="text-lg text-gray-800 mb-4 flex items-center gap-2">
-              <Bell size={18} />
-              Upcoming Events
-            </h3>
-            <div className="space-y-3">
-              {getUpcomingEvents().slice(0, 5).map((event) => (
-                <div key={event.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className={`p-1 rounded text-white ${eventCategories[event.category].color}`}>
-                    {eventCategories[event.category].icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-800 truncate">{event.title}</p>
-                    <p className="text-xs text-gray-600">
-                      {event.date.toLocaleDateString()} at {event.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {getUpcomingEvents().length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-4">
-                  No upcoming events this week
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Event Categories */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h3 className="text-lg text-gray-800 mb-4">Event Categories</h3>
-            <div className="space-y-2">
-              {Object.entries(eventCategories).map(([key, category]) => {
-                const count = events.filter(e => e.category === key).length;
-                return (
-                  <div key={key} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
-                      <span className="text-sm text-gray-700">{category.name}</span>
-                    </div>
-                    <span className="text-sm text-gray-500">{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Academic Calendar Links */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h3 className="text-lg text-gray-800 mb-4">Academic Resources</h3>
-            <div className="space-y-3">
-              <button className="w-full text-left p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors">
-                <div className="text-sm text-blue-700">University Academic Calendar</div>
-                <div className="text-xs text-blue-600">View official dates</div>
-              </button>
-              <button className="w-full text-left p-3 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">
-                <div className="text-sm text-green-700">Exam Schedules</div>
-                <div className="text-xs text-green-600">Check exam dates</div>
-              </button>
-              <button className="w-full text-left p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors">
-                <div className="text-sm text-purple-700">Course Registration</div>
-                <div className="text-xs text-purple-600">Register for courses</div>
-              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Upload ICS Modal */}
+      <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload ICS File</DialogTitle>
+            <DialogDescription>
+              Upload an .ics file to import your class schedule.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="icsFile" className="text-right">
+                ICS File
+              </Label>
+              <Input
+                id="icsFile"
+                type="file"
+                accept=".ics"
+                onChange={handleFileChange}
+                className="col-span-3"
+              />
+            </div>
+            {uploadError && <p className="text-red-500 text-sm col-span-4 text-center">{uploadError}</p>}
+            {uploadSuccess && <p className="text-green-500 text-sm col-span-4 text-center">{uploadSuccess}</p>}
+          </div>
+          <div className="flex justify-end gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">Cancel</Button>
+            </DialogClose>
+            <Button type="button" onClick={handleUploadSubmit}>Upload</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

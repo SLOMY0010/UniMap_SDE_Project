@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import logoImage from "figma:asset/3377312f0bb7ddd1aa5296a07ac4c8b8453a8ede.png";
+import logoImage from "../asset/3377312f0bb7ddd1aa5296a07ac4c8b8453a8ede.png";
 
 export default function Register({ onBack, onLoginClick }) {
   const [username, setUsername] = useState("");
@@ -16,7 +16,7 @@ export default function Register({ onBack, onLoginClick }) {
   const [error, setError] = useState("");
   const { register } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Made async
     e.preventDefault();
     setError("");
 
@@ -40,9 +40,10 @@ export default function Register({ onBack, onLoginClick }) {
       return;
     }
 
-    const success = register(username, email, password);
+    const success = await register(username, email, password); // Await the register call
     if (success) {
-      onBack();
+      // If registration is successful, navigate to login
+      onLoginClick();
     } else {
       setError("Registration failed. Please try again.");
     }

@@ -1,5 +1,6 @@
-import { ArrowLeft, MapPin, Building, Users, GraduationCap, Heart, Music } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, MapPin, Building, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import api from '@/utils/api'; // Import the API utility
 
 interface MainCampusProps {
   onBack: () => void;

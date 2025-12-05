@@ -1,9 +1,9 @@
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Phone, 
-  Clock, 
-  Users, 
+import {
+  ArrowLeft,
+  MapPin,
+  Phone,
+  Clock,
+  Users,
   Wrench,
   Cpu,
   Zap,
@@ -13,7 +13,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-
+import { useState, useEffect } from 'react'; // Added useState, useEffect
+import api from '@/utils/api';
 interface EngineeringCampusProps {
   onBack: () => void;
 }

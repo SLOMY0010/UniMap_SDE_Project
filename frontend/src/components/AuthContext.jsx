@@ -1,37 +1,66 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import api from "@/utils/api";
 
 const AuthContext = createContext(undefined);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (email, password) => {
-    // Simple mock authentication - in production, this would call an API
-    if (email && password) {
-      // For demo purposes, extract username from email
-      const username = email.split("@")[0];
-      setUser({ username, email });
+  useEffect(() => {
+    const checkUser = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const { data } = await api.get("/users/user-stat/");
+          setUser(data);
+        } catch (error) {
+          console.error("Token validation failed", error);
+          localStorage.removeItem("token");
+        }
+      }
+      setLoading(false);
+    };
+    checkUser();
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const { data } = await api.post("/users/login/", { email, password });
+      localStorage.setItem("token", data.jwt);
+      const { data: userData } = await api.get("/users/user-stat/");
+      setUser(userData);
       return true;
+    } catch (error) {
+      console.error("Login failed", error);
+      return false;
     }
-    return false;
   };
 
-  const register = (username, email, password) => {
-    // Simple mock registration - in production, this would call an API
-    if (username && email && password) {
-      setUser({ username, email });
+  const register = async (username, email, password) => {
+    try {
+      await api.post("/users/register/", { username, email, password });
       return true;
+    } catch (error) {
+      console.error("Registration failed", error);
+      return false;
     }
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post("/users/logout/");
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

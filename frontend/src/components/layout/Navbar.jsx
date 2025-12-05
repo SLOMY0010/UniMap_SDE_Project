@@ -8,8 +8,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
+import { useAuth } from '../AuthContext'; // Import useAuth
 
-export default function Navbar({ currentPage, selectedBuilding, setCurrentPage, user, logout }) {
+export default function Navbar({ currentPage, selectedBuilding, setCurrentPage }) {
+  const { user, logout } = useAuth(); // Use useAuth hook
+
   const getPageTitle = () => {
     switch (currentPage) {
       case 'campus':
@@ -55,10 +58,10 @@ export default function Navbar({ currentPage, selectedBuilding, setCurrentPage, 
               <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <Avatar className="h-8 w-8" style={{ backgroundColor: '#3361AC' }}>
                   <AvatarFallback className="text-white">
-                    {user.username.substring(0, 2).toUpperCase()}
+                    {user.username ? user.username.substring(0, 2).toUpperCase() : ''}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm">{user.username}</span>
+                <span className="text-sm">{user.username || user.email}</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
