@@ -4,10 +4,10 @@ import { MapPin, Building2, ExternalLink } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 
 export default function SearchResults({ result }) {
+  if (!result) return null;
+
   const [pinPosition, setPinPosition] = useState(null);
   const floorPlanContainerRef = useRef(null);
-
-  if (!result) return null;
 
   // Function to get Google Maps embed URL or fallback
   const getGoogleMapsEmbed = (url) => {
