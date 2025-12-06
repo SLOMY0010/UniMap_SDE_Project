@@ -2,6 +2,7 @@ import { useState } from 'react';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 import api from '../../utils/api'; // Import the API utility
+import { calculatePinPosition, getContainerDimensions } from '../../utils/floorPlanUtils';
 
 export default function ClassSearch({ onSearchStateChange }) {
   const [searchResult, setSearchResult] = useState(null);
@@ -41,15 +42,7 @@ const handleSearch = async (query) => {
         }
 
         // Calculate pin position from room coordinates
-        let pinPosition = { x: 50, y: 50 }; // Default center
-        if (room.map_x !== null && room.map_y !== null) {
-          // Convert coordinates to percentages (assuming image dimensions)
-          // These are rough estimates - you may need to adjust based on actual image dimensions
-          pinPosition = {
-            x: Math.min(Math.max((room.map_x / 600) * 100, 5), 95), // Assuming 600px width
-            y: Math.min(Math.max((room.map_y / 800) * 100, 5), 95)  // Assuming 800px height
-          };
-        }
+        const pinPosition = calculatePinPosition(room.map_x, room.map_y, 'search-results');
 
         setSearchResult({
           className: `${room.name} - ${room.type}`,

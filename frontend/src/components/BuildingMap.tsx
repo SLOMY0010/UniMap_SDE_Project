@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Building, MapPin, Users, Clock, Coffee, Computer, Search } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { calculatePinPosition, getContainerDimensions } from '../utils/floorPlanUtils';
 
 
 interface RoomData {
@@ -174,14 +175,7 @@ export default function BuildingMap() {
       }
 
       // Calculate pin position from room coordinates
-      let pinPosition = { x: 50, y: 50 }; // Default center
-      if (room.map_x !== null && room.map_y !== null) {
-        // Convert coordinates to percentages (assuming image dimensions)
-        pinPosition = {
-          x: Math.min(Math.max((room.map_x / 600) * 100, 5), 95), // Assuming 600px width
-          y: Math.min(Math.max((room.map_y / 800) * 100, 5), 95)  // Assuming 800px height
-        };
-      }
+      const pinPosition = calculatePinPosition(room.map_x, room.map_y, 'search-results');
 
       // Create search result data
       const searchResultData = {
@@ -282,23 +276,26 @@ export default function BuildingMap() {
             </div>
 
             {/* Building Map Image */}
-            <div className="bg-gray-50 rounded-xl p-4 mb-6 flex items-center justify-center min-h-[400px]">
-              <div className="text-center w-full">
+            <div className="bg-gray-50 rounded-xl p-4 mb-6">
+              <div className="relative w-full h-[500px] bg-white rounded-lg overflow-hidden shadow-md">
                 {getSelectedFloorDetails() && getSelectedFloorDetails()?.image ? (
                   <ImageWithFallback
                     src={getFloorMapImageUrl(getSelectedFloorDetails()!)}
                     alt={`Floor ${getSelectedFloorDetails()!.floor_number} Layout`}
-                    className="max-w-full h-auto mb-4 rounded-lg shadow-md mx-auto"
-                    style={{ maxHeight: '500px' }}
+                    className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="py-8">
-                    <Building size={48} className="text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">
-                      {getSelectedFloorDetails() ? 'No floor map available' : 'Select a floor to view its map'}
-                    </p>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-center">
+                      <Building size={48} className="text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">
+                        {getSelectedFloorDetails() ? 'No floor map available' : 'Select a floor to view its map'}
+                      </p>
+                    </div>
                   </div>
                 )}
+              </div>
+              <div className="mt-4 text-center">
                 <p className="text-gray-600 text-sm">Official floor plan - Click rooms below for detailed information</p>
                 <p className="text-gray-500 text-xs mt-1">University of Debrecen, Faculty of Informatics</p>
               </div>
