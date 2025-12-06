@@ -110,7 +110,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               to={item.path}
               className={({ isActive }) =>
                 `flex items-center ${collapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2 text-sidebar-foreground hover:bg-sidebar-accent rounded-lg cursor-pointer transition-colors ${
-                  isActive ? 'bg-accent text-accent-foreground' : ''
+                  isActive ? 'bg-sidebar-accent text-sidebar-primary-foreground' : ''
                 }`
               }
             >

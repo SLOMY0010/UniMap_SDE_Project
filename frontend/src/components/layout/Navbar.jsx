@@ -1,4 +1,5 @@
-import { LogIn, LogOut, User, BookOpen } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { LogIn, LogOut, User, BookOpen, Moon, Sun } from 'lucide-react';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import {
   DropdownMenu,
@@ -15,6 +16,30 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(() => {
+    // Check for saved preference or system preference
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('darkMode');
+      if (saved !== null) {
+        return saved === 'true';
+      }
+      // Check system preference
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    // Save preference to localStorage
+    localStorage.setItem('darkMode', isDark.toString());
+    
+    // Apply dark class to document root
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
 
   const getPageTitle = () => {
     // Extract building name from path if applicable
@@ -43,7 +68,11 @@ export default function Navbar() {
     }
   };
 
-  return (
+  const toggleDarkMode = () => {
+    setIsDark(!isDark);
+  };
+
+return (
     <div className="bg-card border-b border-border px-6 py-4 flex justify-between items-center">
       <div className="flex items-center gap-4">
         <h1 className="text-xl font-medium text-foreground">
@@ -51,12 +80,32 @@ export default function Navbar() {
         </h1>
       </div>
       <div className="flex items-center gap-4">
+        {/* Dark Mode Toggle - Always visible */}
+        <button
+            onClick={toggleDarkMode}
+            className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+              isDark 
+                ? 'bg-gray-800 hover:bg-gray-700 text-white' 
+                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+            }`}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? (
+              <Sun size={18} />
+            ) : (
+              <Moon size={18} />
+            )}
+            <span className="text-sm font-medium">
+              {isDark ? 'Light Mode' : 'Dark Mode'}
+            </span>
+          </button>
+
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Avatar className="h-8 w-8" style={{ backgroundColor: '#3361AC' }}>
-                  <AvatarFallback className="text-white">
+                <Avatar className="h-8 w-8 ring-2 ring-primary dark:ring-primary-foreground">
+                  <AvatarFallback className="text-white dark:text-gray-900">
                     {user.username ? user.username.substring(0, 2).toUpperCase() : ''}
                   </AvatarFallback>
                 </Avatar>
@@ -64,15 +113,15 @@ export default function Navbar() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/calendar')}>
-                <BookOpen className="mr-2 h-4 w-4" />
+                <BookOpen className="mr-2 h-4 w-4 text-primary dark:text-primary-foreground" />
                 <span>My Classes</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="cursor-pointer text-red-600 focus:text-red-600"
+                className="cursor-pointer text-red-600 focus:text-red-600 dark:text-red-400"
                 onClick={logout}
               >
                 <LogOut className="mr-2 h-4 w-4" />
@@ -83,7 +132,7 @@ export default function Navbar() {
         ) : (
           <button
             onClick={() => navigate('/login')}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
           >
             <LogIn size={18} />
             <span>Login</span>
