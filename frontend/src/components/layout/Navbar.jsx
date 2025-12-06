@@ -1,4 +1,3 @@
-
 import { LogIn, LogOut, User, BookOpen } from 'lucide-react';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import {
@@ -52,16 +51,6 @@ export default function Navbar() {
         </h1>
       </div>
       <div className="flex items-center gap-4">
-        <div
-          className="flex items-center gap-2 bg-accent px-3 py-1 rounded-full cursor-pointer hover:bg-accent/80 transition-colors"
-          onClick={() => navigate('/calendar')}
-        >
-          <BookOpen size={14} />
-          <span className="text-sm">My Classes</span>
-          <div className="bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
-            0
-          </div>
-        </div>
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -77,10 +66,6 @@ export default function Navbar() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/calendar')}>
                 <BookOpen className="mr-2 h-4 w-4" />
                 <span>My Classes</span>
