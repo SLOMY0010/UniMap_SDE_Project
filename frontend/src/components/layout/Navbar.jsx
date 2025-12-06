@@ -82,23 +82,13 @@ return (
       <div className="flex items-center gap-4">
         {/* Dark Mode Toggle - Always visible */}
         <button
-            onClick={toggleDarkMode}
-            className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
-              isDark 
-                ? 'bg-gray-800 hover:bg-gray-700 text-white' 
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-            }`}
-            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {isDark ? (
-              <Sun size={18} />
-            ) : (
-              <Moon size={18} />
-            )}
-            <span className="text-sm font-medium">
-              {isDark ? 'Light Mode' : 'Dark Mode'}
-            </span>
-          </button>
+          onClick={toggleDarkMode}
+          className={`flex items-center ${isDark? 'text-white': 'text-black'} gap-2 p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors`}
+          title="Switch to light mode"
+        >
+          <Sun size={18} />
+          <span className="text-sm font-medium ">{isDark? 'Light-Mode': 'Dark-Mode'}</span>
+        </button>
 
         {user ? (
           <DropdownMenu>
@@ -113,7 +103,7 @@ return (
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/calendar')}>
                 <BookOpen className="mr-2 h-4 w-4 text-primary dark:text-primary-foreground" />
