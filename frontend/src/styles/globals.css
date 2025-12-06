@@ -14,8 +14,8 @@
   --secondary-foreground: #0F2043;
   --muted: #E7E6DD;
   --muted-foreground: #162F65;
-  --accent: #EBC755;
-  --accent-foreground: #0F2043;
+  --accent: #3361AC;
+  --accent-foreground: #ffffff;
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
   --border: #E7E6DD;
@@ -26,7 +26,7 @@
   --font-weight-normal: 400;
   --ring: #3361AC;
   --chart-1: #3361AC;
-  --chart-2: #EBC755;
+  --chart-2: #E8AF30;
   --chart-3: #E8AF30;
   --chart-4: #162F65;
   --chart-5: #0F2043;

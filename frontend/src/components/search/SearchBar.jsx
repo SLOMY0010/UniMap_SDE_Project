@@ -29,8 +29,8 @@ export default function SearchBar({ onSearch, onClear, isSearching, hasResults, 
       transition={{ duration: 0.5 }}
       className="mb-8"
     >
-      <div className="border-b-2 border-dotted border-accent pb-6">
-        <h2 className="text-accent text-2xl mb-6">Search for Classes</h2>
+<div className="mb-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-6">Search for Rooms, Buildings, or Campuses</h2>
         <div className="flex gap-3 max-w-2xl">
 <div className="flex-1 relative">
             <Search
@@ -62,7 +62,7 @@ export default function SearchBar({ onSearch, onClear, isSearching, hasResults, 
               animate={{ opacity: 1, scale: 1 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-3 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors"
+              className="px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
             >
               <X size={20} />
             </motion.button>

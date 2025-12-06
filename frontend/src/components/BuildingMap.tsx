@@ -129,14 +129,14 @@ export default function BuildingMap() {
   const getRoomTypeColor = (type: string) => {
     switch (type) {
       case 'lecture hall':
-      case 'seminar room': return 'bg-blue-50 border-blue-200 hover:bg-blue-100';
-      case 'laboratory': return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
-      case 'office': return 'bg-green-50 border-green-200 hover:bg-green-100';
-      case 'cafeteria': return 'bg-orange-50 border-orange-200 hover:bg-orange-100';
+      case 'seminar room': return 'bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200';
+      case 'laboratory': return 'bg-purple-100 border-purple-300 text-purple-800 hover:bg-purple-200';
+      case 'office': return 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200';
+      case 'cafeteria': return 'bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-200';
       case 'female washroom':
       case 'male washroom':
-      case 'service': return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
-      default: return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+      case 'service': return 'bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200';
+      default: return 'bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200';
     }
   };
 
@@ -178,10 +178,10 @@ export default function BuildingMap() {
       </div>
 
       {/* Header */}
-      <div className="mb-8">
+<div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <Building size={32} className="text-purple-500" />
-          <h1 className="text-4xl italic text-purple-600">{building.name}</h1>
+          <Building size={32} className="text-primary" />
+          <h1 className="text-4xl font-bold text-foreground">{building.name}</h1>
         </div>
         <p className="text-gray-600 text-lg">Building Floor Plans & Room Directory</p>
       </div>
@@ -196,10 +196,10 @@ export default function BuildingMap() {
                 setSelectedFloorId(floor.id);
                 setSelectedRoomId(null); // Reset room selection when floor changes
               }}
-              className={`px-6 py-3 rounded-lg transition-colors ${
+              className={`px-6 py-3 rounded-lg transition-colors font-medium ${
                 selectedFloorId === floor.id
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               <div className="text-sm text-center">
@@ -267,11 +267,11 @@ export default function BuildingMap() {
                       ${selectedRoomId === room.id ? 'ring-2 ring-purple-400' : ''}
                     `}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      {getRoomTypeIcon(room.type)}
-                      <span className="text-xs text-gray-800 capitalize">{room.type}</span>
-                    </div>
-                    <div className="text-sm text-gray-700 font-medium">{room.name}</div>
+<div className="flex items-center gap-2 mb-1">
+                    {getRoomTypeIcon(room.type)}
+                    <span className="text-xs font-medium capitalize">{room.type}</span>
+                  </div>
+                  <div className="text-sm font-semibold">{room.name}</div>
                     {room.map_x && room.map_y && (
                       <div className="text-xs text-gray-500 mt-1">
                         📍 Coordinates: ({room.map_x}, {room.map_y})

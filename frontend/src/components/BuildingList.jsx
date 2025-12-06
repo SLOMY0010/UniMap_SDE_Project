@@ -91,9 +91,9 @@ const BuildingList = () => {
   return (
     <>
       <div className="mb-8 mt-12">
-        <div className="border-b-2 border-dotted border-accent pb-4">
-          <h2 className="text-accent text-lg">Buildings in {displayCampusName}</h2>
-        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-6 pb-4 border-b border-gray-200">
+          Buildings in {displayCampusName}
+        </h2>
       </div>
 
       <motion.div

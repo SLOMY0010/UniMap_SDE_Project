@@ -2,19 +2,21 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { UserPlus, Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import logoImage from "../asset/3377312f0bb7ddd1aa5296a07ac4c8b8453a8ede.png";
 
-export default function Register({ onBack, onLoginClick }) {
+export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => { // Made async
     e.preventDefault();
@@ -43,7 +45,7 @@ export default function Register({ onBack, onLoginClick }) {
     const success = await register(username, email, password); // Await the register call
     if (success) {
       // If registration is successful, navigate to login
-      onLoginClick();
+      navigate("/login");
     } else {
       setError("Registration failed. Please try again.");
     }
@@ -190,24 +192,23 @@ export default function Register({ onBack, onLoginClick }) {
             </Button>
           </form>
 
-          {/* Login Link */}
+{/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
               <button
-                onClick={onLoginClick}
-                className="hover:underline"
-                style={{ color: "#3361AC" }}
+                onClick={() => navigate("/login")}
+                className="hover:underline text-primary font-medium"
               >
                 Sign in here
               </button>
             </p>
           </div>
-
+ 
           {/* Back Link */}
           <div className="mt-4 text-center">
             <button
-              onClick={onBack}
+              onClick={() => navigate("/")}
               className="text-sm text-muted-foreground hover:underline"
             >
               Back to Campus

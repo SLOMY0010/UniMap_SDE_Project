@@ -58,7 +58,7 @@ const handleSearch = async (query) => {
           building: building ? building.name : 'Unknown Building',
           room: room.name,
           floor: `Floor ${floorNumber}`,
-          googleMapUrl: campus ? campus.maps_url : 'https://maps.google.com',
+          googleMapUrl: building ? building.maps_url : (campus ? campus.maps_url : 'https://maps.google.com'),
           floorPlanImage: floorMapImage,
           pinPosition: pinPosition,
           roomType: room.type,

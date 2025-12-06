@@ -2,17 +2,19 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { LogIn, Mail, Lock, AlertCircle } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import logoImage from "../asset/3377312f0bb7ddd1aa5296a07ac4c8b8453a8ede.png";
 
-export default function Login({ onBack, onRegisterClick }) {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => { // Made async
     e.preventDefault();
@@ -30,7 +32,7 @@ export default function Login({ onBack, onRegisterClick }) {
 
     const success = await login(email, password); // Await the login call
     if (success) {
-      onBack(); // Redirect on successful login
+      navigate("/"); // Redirect to home on successful login
     } else {
       setError("Invalid credentials or server error. Please try again.");
     }
@@ -124,24 +126,23 @@ export default function Login({ onBack, onRegisterClick }) {
             </Button>
           </form>
 
-          {/* Register Link */}
+{/* Register Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Don't have an account?{" "}
               <button
-                onClick={onRegisterClick}
-                className="hover:underline"
-                style={{ color: "#3361AC" }}
+                onClick={() => navigate("/register")}
+                className="hover:underline text-primary font-medium"
               >
                 Register here
               </button>
             </p>
           </div>
-
+ 
           {/* Back Link */}
           <div className="mt-4 text-center">
             <button
-              onClick={onBack}
+              onClick={() => navigate("/")}
               className="text-sm text-muted-foreground hover:underline"
             >
               Back to Campus
