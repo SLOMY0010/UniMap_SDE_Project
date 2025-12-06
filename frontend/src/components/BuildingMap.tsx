@@ -1,7 +1,7 @@
 import api from '../utils/api';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Building, MapPin, Users, Clock, Coffee, Computer } from 'lucide-react';
+import { ArrowLeft, Building, MapPin, Users, Clock, Coffee, Computer, Search } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 
@@ -152,6 +152,59 @@ export default function BuildingMap() {
     return `${baseUrl}${floorMap.image}`;
   };
 
+  // Handle room click to navigate to search results
+  const handleRoomClick = async (room: RoomData) => {
+    try {
+      // Get floor map details for the room
+      let floorMapImage = null;
+      let floorNumber = 'Unknown';
+      
+      if (room.floor_map) {
+        try {
+          const floorMapResponse = await api.get(`/uni/floormaps/${room.floor_map}/`);
+          const floorMap = floorMapResponse.data;
+          // Handle image URL properly
+          floorMapImage = floorMap.image.startsWith('http') 
+            ? floorMap.image 
+            : `http://127.0.0.1:8000${floorMap.image}`;
+          floorNumber = floorMap.floor_number;
+        } catch (err) {
+          console.warn('Could not fetch floor map:', err);
+        }
+      }
+
+      // Calculate pin position from room coordinates
+      let pinPosition = { x: 50, y: 50 }; // Default center
+      if (room.map_x !== null && room.map_y !== null) {
+        // Convert coordinates to percentages (assuming image dimensions)
+        pinPosition = {
+          x: Math.min(Math.max((room.map_x / 600) * 100, 5), 95), // Assuming 600px width
+          y: Math.min(Math.max((room.map_y / 800) * 100, 5), 95)  // Assuming 800px height
+        };
+      }
+
+      // Create search result data
+      const searchResultData = {
+        className: `${room.name} - ${room.type}`,
+        campus: building ? building.name : 'Unknown Campus',
+        campusAddress: building ? building.address : 'Unknown Address',
+        building: building ? building.name : 'Unknown Building',
+        room: room.name,
+        floor: `Floor ${floorNumber}`,
+        googleMapUrl: building ? building.maps_url : 'https://maps.google.com',
+        floorPlanImage: floorMapImage,
+        pinPosition: pinPosition,
+        roomType: room.type,
+        coordinates: { x: room.map_x, y: room.map_y }
+      };
+
+      // Navigate to search results with the room data
+      navigate('/search-results', { state: { result: searchResultData } });
+    } catch (err) {
+      console.error('Error navigating to room search results:', err);
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading building map...</div>;
   }
@@ -260,9 +313,9 @@ export default function BuildingMap() {
                 {getRoomsForSelectedFloor().map((room: RoomData) => (
                   <button
                     key={room.id}
-                    onClick={() => setSelectedRoomId(selectedRoomId === room.id ? null : room.id)}
+                    onClick={() => handleRoomClick(room)}
                     className={`
-                      p-3 rounded-lg border-2 transition-all text-left
+                      p-3 rounded-lg border-2 transition-all text-left hover:scale-105
                       ${getRoomTypeColor(room.type)}
                       ${selectedRoomId === room.id ? 'ring-2 ring-purple-400' : ''}
                     `}
@@ -270,6 +323,7 @@ export default function BuildingMap() {
 <div className="flex items-center gap-2 mb-1">
                     {getRoomTypeIcon(room.type)}
                     <span className="text-xs font-medium capitalize">{room.type}</span>
+                    <Search size={12} className="ml-auto text-gray-500" />
                   </div>
                   <div className="text-sm font-semibold">{room.name}</div>
                     {room.map_x && room.map_y && (

@@ -13,6 +13,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import RoomBooking from "./components/RoomBooking";
 import BuildingList from "./components/BuildingList"; // New import
+import SearchResultsPage from "./components/SearchResultsPage"; // New import
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 function AppContent() {
@@ -60,6 +61,7 @@ function AppContent() {
               <Route path="/room-booking" element={<RoomBooking />} />
               <Route path="/campus/:campusName/buildings" element={<BuildingList />} /> {/* New route */}
               <Route path="/building/:buildingName" element={<BuildingMap />} /> {/* Updated route */}
+              <Route path="/search-results" element={<SearchResultsPage />} /> {/* New route */}
               <Route path="/" element={<CampusSelection />} />
             </Routes>
           </motion.div>
