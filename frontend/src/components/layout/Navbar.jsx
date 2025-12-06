@@ -1,3 +1,4 @@
+
 import { LogIn, LogOut, User, BookOpen } from 'lucide-react';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import {
@@ -8,27 +9,36 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { useAuth } from '../AuthContext'; // Import useAuth
+import { useAuth } from '../AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export default function Navbar({ currentPage, selectedBuilding, setCurrentPage }) {
-  const { user, logout } = useAuth(); // Use useAuth hook
+export default function Navbar() {
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const getPageTitle = () => {
-    switch (currentPage) {
-      case 'campus':
+    // Extract building name from path if applicable
+    const buildingMatch = location.pathname.match(/\/building\/(.+)/);
+    if (buildingMatch && buildingMatch[1]) {
+      const buildingName = decodeURIComponent(buildingMatch[1]).replace(/-/g, ' ');
+      return `${buildingName} Map`;
+    }
+
+    // Extract campus name from path if applicable
+    const campusMatch = location.pathname.match(/\/campus\/(.+)\/buildings/);
+    if (campusMatch && campusMatch[1]) {
+      const campusName = decodeURIComponent(campusMatch[1]).replace(/-/g, ' ');
+      return `Buildings in ${campusName}`;
+    }
+
+    switch (location.pathname) {
+      case '/':
         return 'All Campuses';
-      case 'calendar':
+      case '/calendar':
         return 'My Classes';
-      case 'room-booking':
+      case '/room-booking':
         return 'Room Booking';
-      case 'main-campus':
-        return 'Main Campus';
-      case 'kassai-campus':
-        return 'Kassai Campus';
-      case 'engineering-campus':
-        return 'Engineering Campus';
-      case 'building-map':
-        return `${selectedBuilding} Map`;
       default:
         return 'Campus Navigation';
     }
@@ -44,7 +54,7 @@ export default function Navbar({ currentPage, selectedBuilding, setCurrentPage }
       <div className="flex items-center gap-4">
         <div
           className="flex items-center gap-2 bg-accent px-3 py-1 rounded-full cursor-pointer hover:bg-accent/80 transition-colors"
-          onClick={() => setCurrentPage('calendar')}
+          onClick={() => navigate('/calendar')}
         >
           <BookOpen size={14} />
           <span className="text-sm">My Classes</span>
@@ -71,7 +81,7 @@ export default function Navbar({ currentPage, selectedBuilding, setCurrentPage }
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/calendar')}>
                 <BookOpen className="mr-2 h-4 w-4" />
                 <span>My Classes</span>
               </DropdownMenuItem>
@@ -87,7 +97,7 @@ export default function Navbar({ currentPage, selectedBuilding, setCurrentPage }
           </DropdownMenu>
         ) : (
           <button
-            onClick={() => setCurrentPage('login')}
+            onClick={() => navigate('/login')}
             className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
           >
             <LogIn size={18} />

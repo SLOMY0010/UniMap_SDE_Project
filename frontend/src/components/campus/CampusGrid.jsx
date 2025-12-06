@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import CampusCard from './CampusCard';
 import api from '../../utils/api'; // Import the API utility
 
-export default function CampusGrid({ onCampusClick }) {
+export default function CampusGrid() {
   const [campuses, setCampuses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -59,7 +59,6 @@ export default function CampusGrid({ onCampusClick }) {
             key={campus.id} // Use unique ID from backend
             campus={campus}
             index={index}
-            onClick={() => onCampusClick?.(campus.displayName)}
           />
         ))}
       </motion.div>

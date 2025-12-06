@@ -1,7 +1,28 @@
 import { motion } from 'motion/react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useNavigate } from 'react-router-dom';
 
-export default function CampusCard({ campus, index, onClick }) {
+// Helper function to slugify campus names
+const slugify = (text) => {
+  return text
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-');
+};
+
+export default function CampusCard({ campus, index }) {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    const campusSlug = slugify(campus.name);
+    navigate(`/campus/${campusSlug}/buildings`, { state: { campusId: campus.id } });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -9,7 +30,7 @@ export default function CampusCard({ campus, index, onClick }) {
       transition={{ duration: 0.6, ease: 'easeOut', delay: index * 0.1 }}
       whileHover={{ y: -5 }}
       className="group cursor-pointer"
-      onClick={onClick}
+      onClick={handleCardClick}
     >
       <div className="bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-border">
         <div className="h-48 overflow-hidden bg-muted">

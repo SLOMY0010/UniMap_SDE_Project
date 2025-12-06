@@ -1,26 +1,9 @@
+import api from '../utils/api';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Building, MapPin, Users, Clock, Coffee, Computer } from 'lucide-react';
-import { useState, useEffect } from 'react'; // Import useEffect
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import api from '@/utils/api'; // Import the API utility
 
-// Static image imports for fallback/default if not dynamically loaded
-import groundFloorImage from '../asset/b8884073179d49a6cbdb08d12f7206c7d23bf96d.png';
-import firstFloorImage from '../asset/58c1532e89856f05a7e27a43bb10f887da9b6b14.png';
-import secondFloorImage from '../asset/aceacac033493ecb1a7c27a61fe6b8b4c3660f7c.png';
-import thirdFloorImage from '../asset/aab9e60f00c56390691d7af2d187d4207351f908.png';
-
-const STATIC_FLOOR_IMAGES = {
-  'f0': groundFloorImage,
-  'f1': firstFloorImage,
-  'f2': secondFloorImage,
-  'f3': thirdFloorImage,
-};
-
-
-interface BuildingMapProps {
-  onBack: () => void;
-  buildingName: string;
-}
 
 interface RoomData {
   id: number;
@@ -51,76 +34,83 @@ interface BuildingDetail {
 }
 
 
-export default function BuildingMap({ onBack, buildingName }: BuildingMapProps) {
-  const [building, setBuilding] = useState<BuildingDetail | null>(null);
-  const [floorsData, setFloorsData] = useState<any[]>([]); // Combines floor map and rooms
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [selectedFloorId, setSelectedFloorId] = useState<string | null>(null); // Use string for 'f0', 'f1', etc.
-  const [selectedRoom, setSelectedRoom] = useState<number | null>(null); // Use room ID
-
-  useEffect(() => {
-    const fetchBuildingData = async () => {
-      try {
-        // First, find the building by name
-        const searchResponse = await api.get(`/uni/search?q=${buildingName}`);
-        const foundBuilding = searchResponse.data.buildings.find((b: { name: string; }) => b.name === buildingName);
-
-        if (!foundBuilding) {
-          setError(`Building "${buildingName}" not found.`);
+export default function BuildingMap() {
+    const { buildingName: routeBuildingName } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const buildingId = location.state?.buildingId;
+  
+    const [building, setBuilding] = useState<BuildingDetail | null>(null);
+    const [allFloors, setAllFloors] = useState<FloorMapData[]>([]);
+    const [allRooms, setAllRooms] = useState<RoomData[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+  
+    const [selectedFloorId, setSelectedFloorId] = useState<number | null>(null);
+    const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
+  
+    useEffect(() => {
+      const fetchBuildingData = async () => {
+        if (!buildingId) {
+          setError('Building ID not provided in navigation state.');
           setLoading(false);
           return;
         }
-
-        // Fetch detailed building data including nested floors (if available through building endpoint directly)
-        // Adjust this if you need to fetch floors separately
-        const buildingDetailResponse = await api.get(`/uni/buildings/${foundBuilding.id}/`);
-        const fetchedBuilding: BuildingDetail = buildingDetailResponse.data;
-        setBuilding(fetchedBuilding);
-
-        // Fetch all rooms and filter by building
-        const roomsResponse = await api.get('/uni/rooms/');
-        const roomsForBuilding = roomsResponse.data.filter((room: RoomData) => room.building === fetchedBuilding.id);
-
-        // Organize data by floor
-        const organizedFloors: any[] = fetchedBuilding.floors.map(floorMap => {
-          const roomsOnFloor = roomsForBuilding.filter((room: RoomData) => room.floor_map === floorMap.id);
-          return {
-            id: `f${floorMap.floor_number}`, // Convert floor_number to 'f0', 'f1' format
-            name: `Floor ${floorMap.floor_number}`,
-            level: `${floorMap.floor_number}. emelet`, // Hungarian for floor
-            description: `Rooms on Floor ${floorMap.floor_number}`, // Placeholder
-            image: floorMap.image ? `${api.defaults.baseURL.replace('/api', '')}${floorMap.image}` : undefined, // Full URL for image
-            rooms: roomsOnFloor.map((room: RoomData) => ({
-              ...room,
-              number: room.name, // Using name as number for display
-              // Add static capacity and equipment for now if not in backend, or map from room properties
-              capacity: room.type.includes('lecture') || room.type.includes('seminar') || room.type.includes('lab') ? 30 : undefined,
-              equipment: room.type.includes('lecture') ? ['Projector', 'Whiteboard', 'Audio System'] :
-                         room.type.includes('lab') ? ['Computer Workstations', 'Software Development Tools'] : undefined,
-            })),
-          };
-        });
-        setFloorsData(organizedFloors.sort((a,b) => a.floor_number - b.floor_number)); // Sort by floor number
-
-        if (organizedFloors.length > 0) {
-          setSelectedFloorId(organizedFloors[0].id); // Select the first floor by default
+        
+        try {
+          setLoading(true);
+          
+          // Fetch building details
+          const buildingResponse = await api.get(`/uni/buildings/${buildingId}/`);
+          const fetchedBuilding = buildingResponse.data;
+          setBuilding(fetchedBuilding);
+          
+          // Fetch all floor maps for this building
+          const floorsResponse = await api.get(`/uni/floormaps/?building=${buildingId}`);
+          const floors = floorsResponse.data.sort((a, b) => a.floor_number - b.floor_number);
+          setAllFloors(floors);
+          
+          // Fetch all rooms for this building
+          const roomsResponse = await api.get(`/uni/rooms/?building=${buildingId}`);
+          setAllRooms(roomsResponse.data);
+          
+          // Select first floor by default
+          if (floors.length > 0) {
+            setSelectedFloorId(floors[0].id);
+          }
+  
+        } catch (err) {
+          setError('Failed to fetch building data.');
+          console.error('Error fetching building data:', err);
+        } finally {
+          setLoading(false);
         }
+      };
+  
+      fetchBuildingData();
+    }, [buildingId]);
 
-      } catch (err) {
-        setError('Failed to fetch building data.');
-        console.error('Error fetching building data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchBuildingData();
-  }, [buildingName]); // Re-fetch if buildingName changes
 
-  const currentFloor = floorsData.find(f => f.id === selectedFloorId);
-  const selectedRoomData = selectedRoom ? currentFloor?.rooms.find((r: RoomData) => r.id === selectedRoom) : null;
+
+
+
+
+// Get rooms for selected floor
+  const getRoomsForSelectedFloor = () => {
+    if (!selectedFloorId) return [];
+    return allRooms.filter(room => room.floor_map === selectedFloorId);
+  };
+
+  // Get selected floor details
+  const getSelectedFloorDetails = () => {
+    return allFloors.find(floor => floor.id === selectedFloorId);
+  };
+
+  // Get selected room details
+  const getSelectedRoomDetails = () => {
+    return allRooms.find(room => room.id === selectedRoomId);
+  };
 
   const getRoomTypeIcon = (type: string) => {
     switch (type) {
@@ -150,6 +140,18 @@ export default function BuildingMap({ onBack, buildingName }: BuildingMapProps) 
     }
   };
 
+  // Get floor map image URL
+  const getFloorMapImageUrl = (floorMap: FloorMapData) => {
+    if (!floorMap.image) return null;
+    // Handle both relative and absolute URLs
+    if (floorMap.image.startsWith('http')) {
+      return floorMap.image;
+    }
+    // Remove /api from baseURL and construct proper media URL
+    const baseUrl = api.defaults.baseURL.replace('/api', '');
+    return `${baseUrl}${floorMap.image}`;
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading building map...</div>;
   }
@@ -167,11 +169,11 @@ export default function BuildingMap({ onBack, buildingName }: BuildingMapProps) 
       {/* Back Button */}
       <div className="mb-6">
         <button
-          onClick={onBack}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors p-2 hover:bg-gray-100 rounded-lg"
         >
           <ArrowLeft size={20} />
-          <span>Back to Kassai Campus</span>
+          <span>Back</span>
         </button>
       </div>
 
@@ -184,15 +186,15 @@ export default function BuildingMap({ onBack, buildingName }: BuildingMapProps) 
         <p className="text-gray-600 text-lg">Building Floor Plans & Room Directory</p>
       </div>
 
-      {/* Floor Navigation */}
+{/* Floor Navigation */}
       <div className="mb-6">
-        <div className="flex items-center gap-2">
-          {floorsData.map((floor) => (
+        <div className="flex items-center gap-2 flex-wrap">
+          {allFloors.map((floor) => (
             <button
               key={floor.id}
               onClick={() => {
                 setSelectedFloorId(floor.id);
-                setSelectedRoom(null);
+                setSelectedRoomId(null); // Reset room selection when floor changes
               }}
               className={`px-6 py-3 rounded-lg transition-colors ${
                 selectedFloorId === floor.id
@@ -201,22 +203,25 @@ export default function BuildingMap({ onBack, buildingName }: BuildingMapProps) 
               }`}
             >
               <div className="text-sm text-center">
-                <div className="text-lg">{floor.level}</div>
-                <div className="text-xs opacity-80">{floor.name}</div>
+                <div className="text-lg">Floor {floor.floor_number}</div>
               </div>
             </button>
           ))}
         </div>
-        <p className="text-sm text-gray-600 mt-2">{currentFloor?.description}</p>
+        <p className="text-sm text-gray-600 mt-2">
+          {getSelectedFloorDetails() ? `Floor ${getSelectedFloorDetails().floor_number} - ${getRoomsForSelectedFloor().length} rooms` : 'Select a floor'}
+        </p>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Building Map Visualization */}
+{/* Building Map Visualization */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl text-gray-800">{currentFloor?.name} ({currentFloor?.level})</h2>
+              <h2 className="text-2xl text-gray-800">
+                {getSelectedFloorDetails() ? `Floor ${getSelectedFloorDetails().floor_number}` : 'Select a Floor'}
+              </h2>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Clock size={16} />
                 <span>Building Hours: 6:00 - 22:00</span>
@@ -224,81 +229,106 @@ export default function BuildingMap({ onBack, buildingName }: BuildingMapProps) 
             </div>
 
             {/* Building Map Image */}
-            <div className="bg-gray-50 rounded-xl p-4 mb-6 flex items-center justify-center min-h-[500px]">
+            <div className="bg-gray-50 rounded-xl p-4 mb-6 flex items-center justify-center min-h-[400px]">
               <div className="text-center w-full">
-                <ImageWithFallback
-                  src={currentFloor?.image ? currentFloor.image : STATIC_FLOOR_IMAGES[currentFloor?.id as keyof typeof STATIC_FLOOR_IMAGES] || groundFloorImage}
-                  alt={`${currentFloor?.name} (${currentFloor?.level}) Layout`}
-                  className="max-w-full h-auto mb-4 rounded-lg shadow-md mx-auto"
-                  style={{ maxHeight: '600px' }}
-                />
+                {getSelectedFloorDetails() && getSelectedFloorDetails()?.image ? (
+                  <ImageWithFallback
+                    src={getFloorMapImageUrl(getSelectedFloorDetails()!)}
+                    alt={`Floor ${getSelectedFloorDetails()!.floor_number} Layout`}
+                    className="max-w-full h-auto mb-4 rounded-lg shadow-md mx-auto"
+                    style={{ maxHeight: '500px' }}
+                  />
+                ) : (
+                  <div className="py-8">
+                    <Building size={48} className="text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">
+                      {getSelectedFloorDetails() ? 'No floor map available' : 'Select a floor to view its map'}
+                    </p>
+                  </div>
+                )}
                 <p className="text-gray-600 text-sm">Official floor plan - Click rooms below for detailed information</p>
                 <p className="text-gray-500 text-xs mt-1">University of Debrecen, Faculty of Informatics</p>
               </div>
             </div>
 
             {/* Room Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {currentFloor?.rooms.map((room: RoomData) => (
-                <button
-                  key={room.id}
-                  onClick={() => setSelectedRoom(selectedRoom === room.id ? null : room.id)}
-                  className={`
-                    p-3 rounded-lg border-2 transition-all text-left
-                    ${getRoomTypeColor(room.type)}
-                    ${selectedRoom === room.id ? 'ring-2 ring-purple-400' : ''}
-                  `}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    {getRoomTypeIcon(room.type)}
-                    <span className="text-xs text-gray-800">{room.name}</span>
-                  </div>
-                  <div className="text-sm text-gray-700">{room.name}</div>
-                  {room.capacity && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      👥 {room.capacity} seats
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                Rooms on Floor {getSelectedFloorDetails()?.floor_number || ''}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {getRoomsForSelectedFloor().map((room: RoomData) => (
+                  <button
+                    key={room.id}
+                    onClick={() => setSelectedRoomId(selectedRoomId === room.id ? null : room.id)}
+                    className={`
+                      p-3 rounded-lg border-2 transition-all text-left
+                      ${getRoomTypeColor(room.type)}
+                      ${selectedRoomId === room.id ? 'ring-2 ring-purple-400' : ''}
+                    `}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      {getRoomTypeIcon(room.type)}
+                      <span className="text-xs text-gray-800 capitalize">{room.type}</span>
                     </div>
-                  )}
-                </button>
-              ))}
+                    <div className="text-sm text-gray-700 font-medium">{room.name}</div>
+                    {room.map_x && room.map_y && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        📍 Coordinates: ({room.map_x}, {room.map_y})
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {getRoomsForSelectedFloor().length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No rooms found on this floor.
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Sidebar */}
+{/* Sidebar */}
         <div className="space-y-6">
           {/* Room Details */}
-          {selectedRoomData && (
+          {getSelectedRoomDetails() && (
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-start gap-3 mb-4">
-                {getRoomTypeIcon(selectedRoomData.type)}
+                {getRoomTypeIcon(getSelectedRoomDetails()!.type)}
                 <div>
-                  <h3 className="text-lg text-gray-800">{selectedRoomData.name}</h3>
-                  <p className="text-gray-600">{selectedRoomData.name}</p>
+                  <h3 className="text-lg text-gray-800">{getSelectedRoomDetails()!.name}</h3>
+                  <p className="text-gray-600 capitalize">{getSelectedRoomDetails()!.type}</p>
                 </div>
               </div>
 
-              {selectedRoomData.capacity && (
-                <div className="mb-3">
+              <div className="space-y-3">
+                <div>
                   <p className="text-sm text-gray-600">
-                    <strong>Capacity:</strong> {selectedRoomData.capacity} people
+                    <strong>Room Type:</strong> {getSelectedRoomDetails()!.type}
                   </p>
                 </div>
-              )}
 
-              {selectedRoomData.equipment && selectedRoomData.equipment.length > 0 && (
-                <div>
-                  <h4 className="text-sm text-gray-800 mb-2">Equipment & Features:</h4>
-                  <div className="space-y-1">
-                    {selectedRoomData.equipment.map((item, index) => (
-                      <div key={index} className="text-sm text-gray-600 flex items-center gap-2">
-                        <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                        {item}
-                      </div>
-                    ))}
+                {getSelectedRoomDetails()!.map_x && getSelectedRoomDetails()!.map_y && (
+                  <div>
+                    <p className="text-sm text-gray-600">
+                      <strong>Map Coordinates:</strong> ({getSelectedRoomDetails()!.map_x}, {getSelectedRoomDetails()!.map_y})
+                    </p>
                   </div>
+                )}
+
+                <div>
+                  <p className="text-sm text-gray-600">
+                    <strong>Floor:</strong> {getSelectedFloorDetails()?.floor_number}
+                  </p>
                 </div>
-              )}
+
+                <div>
+                  <p className="text-sm text-gray-600">
+                    <strong>Building:</strong> {building?.name}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -333,3 +363,4 @@ export default function BuildingMap({ onBack, buildingName }: BuildingMapProps) 
     </div>
   );
 }
+
