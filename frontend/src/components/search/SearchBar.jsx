@@ -32,18 +32,18 @@ export default function SearchBar({ onSearch, onClear, isSearching, hasResults, 
       <div className="border-b-2 border-dotted border-accent pb-6">
         <h2 className="text-accent text-2xl mb-6">Search for Classes</h2>
         <div className="flex gap-3 max-w-2xl">
-          <div className="flex-1 relative">
+<div className="flex-1 relative">
             <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-              size={20}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground pointer-events-none"
+              size={18}
             />
             <input
               type="text"
-              placeholder="Enter class code (e.g., IFB101)"
+              placeholder="Search for rooms, buildings, or campuses..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="w-full pl-12 pr-4 py-3 bg-input-background border-2 border-border rounded-lg transition-all focus:border-primary focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 bg-input-background border-2 border-border rounded-lg transition-all focus:border-primary focus:outline-none"
             />
           </div>
           <motion.button

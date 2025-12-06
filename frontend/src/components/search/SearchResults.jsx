@@ -42,7 +42,7 @@ export default function SearchResults({ result }) {
 
         {/* Maps Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Google Map */}
+{/* Google Map */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -53,20 +53,34 @@ export default function SearchResults({ result }) {
               <h4>Building Location</h4>
             </div>
             <div className="h-80 bg-muted">
-              <iframe
-                src={result.googleMapUrl}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Building location on Google Maps"
-              />
+              {result.googleMapUrl && result.googleMapUrl.includes('maps.app.goo.gl') || result.googleMapUrl.includes('google.com/maps') ? (
+                <iframe
+                  src={result.googleMapUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Building location on Google Maps"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <a 
+                    href={result.googleMapUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline flex items-center gap-2"
+                  >
+                    <MapPin size={20} />
+                    View on Google Maps
+                  </a>
+                </div>
+              )}
             </div>
           </motion.div>
 
-          {/* Floor Plan with Pin */}
+{/* Floor Plan with Pin */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -77,78 +91,102 @@ export default function SearchResults({ result }) {
               <h4>Floor Plan - {result.floor}</h4>
             </div>
             <div className="h-80 bg-muted relative overflow-hidden">
-              <ImageWithFallback
-                src={result.floorPlanImage}
-                alt="Floor plan"
-                className="w-full h-full object-cover"
-              />
-              {/* Room Marker Pin */}
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
-                className="absolute"
-                style={{
-                  left: `${result.pinPosition.x}%`,
-                  top: `${result.pinPosition.y}%`,
-                  transform: 'translate(-50%, -100%)',
-                }}
-              >
-                <div className="relative">
-                  {/* Pulsing circle animation */}
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.5, 1],
-                      opacity: [0.5, 0, 0.5],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                    className="absolute inset-0 bg-red-500 rounded-full"
-                    style={{
-                      width: '40px',
-                      height: '40px',
-                      left: '-20px',
-                      top: '-20px',
-                    }}
+              {result.floorPlanImage ? (
+                <>
+                  <ImageWithFallback
+                    src={result.floorPlanImage.startsWith('http') ? result.floorPlanImage : `http://127.0.0.1:8000${result.floorPlanImage}`}
+                    alt="Floor plan"
+                    className="w-full h-full object-contain"
                   />
-                  {/* Pin icon */}
-                  <MapPin
-                    size={40}
-                    className="text-red-600 drop-shadow-lg relative z-10"
-                    fill="#dc2626"
-                  />
-                  {/* Room label */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                    className="absolute top-full mt-1 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-lg whitespace-nowrap"
-                  >
-                    <span className="text-xs font-medium text-gray-900">
-                      {result.room}
-                    </span>
-                  </motion.div>
+                  {/* Room Marker Pin */}
+                  {result.coordinates && result.coordinates.x !== null && result.coordinates.y !== null && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
+                      className="absolute"
+                      style={{
+                        left: `${result.pinPosition.x}%`,
+                        top: `${result.pinPosition.y}%`,
+                        transform: 'translate(-50%, -100%)',
+                      }}
+                    >
+                      <div className="relative">
+                        {/* Pulsing circle animation */}
+                        <motion.div
+                          animate={{
+                            scale: [1, 1.5, 1],
+                            opacity: [0.5, 0, 0.5],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                          }}
+                          className="absolute inset-0 bg-red-500 rounded-full"
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            left: '-20px',
+                            top: '-20px',
+                          }}
+                        />
+                        {/* Pin icon */}
+                        <MapPin
+                          size={40}
+                          className="text-red-600 drop-shadow-lg relative z-10"
+                          fill="#dc2626"
+                        />
+                        {/* Room label */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.7 }}
+                          className="absolute top-full mt-1 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-lg whitespace-nowrap"
+                        >
+                          <span className="text-xs font-medium text-gray-900">
+                            {result.room}
+                          </span>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                  <div className="text-center">
+                    <Building2 size={48} className="mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No floor plan available</p>
+                  </div>
                 </div>
-              </motion.div>
+              )}
             </div>
           </motion.div>
         </div>
 
-        {/* Additional Information */}
+{/* Additional Information */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
           className="bg-accent/10 border border-accent/20 rounded-lg p-4"
         >
-          <p className="text-sm text-muted-foreground">
-            <strong>Note:</strong> This is a mock demonstration. In production, this search will
-            connect to your backend API to fetch real-time classroom information, building
-            locations, and floor plans.
-          </p>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              <strong>Search Results:</strong> Found {result.roomType === 'building' ? 'building' : result.roomType === 'campus' ? 'campus' : 'room'} 
+              {result.coordinates && result.coordinates.x !== null && result.coordinates.y !== null && (
+                <span> with precise coordinates ({result.coordinates.x}, {result.coordinates.y})</span>
+              )}
+            </p>
+            {result.coordinates && result.coordinates.x !== null && result.coordinates.y !== null && (
+              <p className="text-xs text-muted-foreground">
+                <strong>Tip:</strong> The red pin on the floor plan shows the exact location of the room.
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              <strong>Navigation:</strong> Click the Google Maps link for directions, or use the floor plan to locate the room within the building.
+            </p>
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
