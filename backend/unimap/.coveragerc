@@ -1,0 +1,10 @@
+[run]
+source = booking
+omit =
+    */migrations/*
+    */tests/*
+    */__init__.py
+
+[report]
+show_missing = True
+skip_covered = True
