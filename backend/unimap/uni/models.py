@@ -19,6 +19,7 @@ class Building(models.Model):
     campus = models.ForeignKey(Campus, related_name='buildings', on_delete=models.CASCADE)
     address = models.CharField(max_length=200, null=False, blank=False)
     maps_url = models.URLField(null=False, blank=False)
+    image = models.ImageField(upload_to='images/buildings', null=True, blank=True)
 
     class Meta:
         ordering = ['name']
