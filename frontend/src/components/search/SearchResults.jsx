@@ -110,25 +110,28 @@ export default function SearchResults({ result }) {
         </div>
 
         {/* Map + Floor Plan */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           {/* Google Map Panel */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-card border border-border rounded-lg overflow-hidden shadow-sm"
+            className="bg-card border border-border rounded-lg overflow-hidden shadow-sm flex flex-col"
           >
             <div className="bg-primary text-primary-foreground px-4 py-3">
               <h4 className="font-semibold">Building Location</h4>
             </div>
 
-            <div className="h-80 bg-muted">
+            <div className="min-h-[400px] lg:min-h-[600px] xl:min-h-[754px] bg-muted p-0 flex-1">
               {getGoogleMapsEmbed(result.googleMapUrl) ? (
                 <iframe
                   src={getGoogleMapsEmbed(result.googleMapUrl)}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
+                  className="w-full h-full"
+                  style={{ 
+                    border: 0,
+                    display: 'block',
+                    minHeight: '400px'
+                  }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -166,14 +169,14 @@ export default function SearchResults({ result }) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-card border border-border rounded-lg overflow-hidden shadow-sm"
+            className="bg-card border border-border rounded-lg overflow-hidden shadow-sm flex flex-col"
           >
             <div className="bg-primary text-primary-foreground px-4 py-3">
               <h4 className="font-semibold">Floor Plan - {result.floor}</h4>
             </div>
 
             <div
-              className="h-80 bg-muted relative overflow-hidden"
+              className="min-h-[400px] lg:min-h-[600px] xl:min-h-[754px] bg-muted relative overflow-hidden flex-1"
               ref={floorPlanContainerRef}
             >
               {result.floorPlanImage ? (

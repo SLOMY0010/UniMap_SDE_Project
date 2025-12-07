@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Testing UniMap API</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPI() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test campuses
+                const campusesResponse = await fetch('http://127.0.0.1:8000/api/uni/campuses/');
+                const campuses = await campusesResponse.json();
+                results.innerHTML += '<h2>Campuses:</h2><pre>' + JSON.stringify(campuses, null, 2) + '</pre>';
+                
+                // Test buildings
+                const buildingsResponse = await fetch('http://127.0.0.1:8000/api/uni/buildings/');
+                const buildings = await buildingsResponse.json();
+                results.innerHTML += '<h2>Buildings:</h2><pre>' + JSON.stringify(buildings, null, 2) + '</pre>';
+                
+                // Test building details
+                if (buildings.length > 0) {
+                    const buildingResponse = await fetch(`http://127.0.0.1:8000/api/uni/buildings/${buildings[0].id}/`);
+                    const building = await buildingResponse.json();
+                    results.innerHTML += '<h2>Building Details:</h2><pre>' + JSON.stringify(building, null, 2) + '</pre>';
+                    
+                    // Test floor maps for this building
+                    const floorsResponse = await fetch(`http://127.0.0.1:8000/api/uni/floormaps/?building=${buildings[0].id}`);
+                    const floors = await floorsResponse.json();
+                    results.innerHTML += '<h2>Floor Maps:</h2><pre>' + JSON.stringify(floors, null, 2) + '</pre>';
+                    
+                    // Test rooms for this building
+                    const roomsResponse = await fetch(`http://127.0.0.1:8000/api/uni/rooms/?building=${buildings[0].id}`);
+                    const rooms = await roomsResponse.json();
+                    results.innerHTML += '<h2>Rooms:</h2><pre>' + JSON.stringify(rooms.slice(0, 10), null, 2) + '</pre>';
+                }
+                
+            } catch (error) {
+                results.innerHTML += '<h2>Error:</h2><pre>' + error.message + '</pre>';
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>
