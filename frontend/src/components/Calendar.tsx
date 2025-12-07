@@ -20,6 +20,7 @@ import {
   Upload
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import api from '@/utils/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from './ui/dialog';
@@ -87,6 +88,7 @@ const categorizeEvent = (event: BackendEvent): Event => {
 };
 
 export default function Calendar({ onBack }: CalendarProps) {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [view, setView] = useState<'month' | 'list'>('month');
@@ -235,6 +237,114 @@ export default function Calendar({ onBack }: CalendarProps) {
     }
   };
 
+  const handleEventClick = async (event: Event) => {
+    try {
+      // Search for the room/location using the backend search API
+      const response = await api.get(`/uni/search/?q=${encodeURIComponent(event.location)}`);
+      const { campuses, buildings, rooms, matched_type } = response.data;
+
+      if (matched_type === 'room' && rooms.length > 0) {
+        const room = rooms[0];
+        const building = buildings.find(b => b.id === room.building);
+        const campus = campuses.find(c => c.id === building?.campus);
+
+        // Fetch floor map details for the room
+        let floorMapImage = null;
+        let floorNumber = 'Unknown';
+        
+        if (room.floor_map) {
+          try {
+            const floorMapResponse = await api.get(`/uni/floormaps/${room.floor_map}/`);
+            const floorMap = floorMapResponse.data;
+            floorMapImage = floorMap.image.startsWith('http') 
+              ? floorMap.image 
+              : `http://127.0.0.1:8000${floorMap.image}`;
+            floorNumber = floorMap.floor_number;
+          } catch (err) {
+            console.warn('Could not fetch floor map:', err);
+          }
+        }
+
+        // Create search result data similar to ClassSearch
+        const searchResultData = {
+          className: `${event.title} - ${event.description || 'Class'}`,
+          campus: campus ? campus.name : 'Unknown Campus',
+          campusAddress: campus ? campus.address : 'Unknown Address',
+          building: building ? building.name : 'Unknown Building',
+          room: room.name,
+          floor: `Floor ${floorNumber}`,
+          googleMapUrl: building ? building.maps_url : (campus ? campus.maps_url : 'https://maps.google.com'),
+          floorPlanImage: floorMapImage,
+          pinPosition: room.map_x && room.map_y ? { x: room.map_x, y: room.map_y } : { x: 50, y: 50 },
+          roomType: room.type,
+          coordinates: room.map_x && room.map_y ? { x: room.map_x, y: room.map_y } : null
+        };
+
+        // Navigate to search results with the room data
+        navigate('/search-results', { state: { result: searchResultData } });
+      } else if (matched_type === 'building' && buildings.length > 0) {
+        const building = buildings[0];
+        const campus = campuses.find(c => c.id === building.campus);
+
+        // Fetch first floor map for the building
+        let floorMapImage = null;
+        try {
+          const floorsResponse = await api.get(`/uni/floormaps/?building=${building.id}`);
+          const floors = floorsResponse.data;
+          if (floors.length > 0) {
+            floorMapImage = floors[0].image.startsWith('http') 
+              ? floors[0].image 
+              : `http://127.0.0.1:8000${floors[0].image}`;
+          }
+        } catch (err) {
+          console.warn('Could not fetch building floor maps:', err);
+        }
+
+        const searchResultData = {
+          className: `${event.title} - ${event.description || 'Class'}`,
+          campus: campus ? campus.name : 'Unknown Campus',
+          campusAddress: campus ? campus.address : 'Unknown Address',
+          building: building.name,
+          room: 'Building Entrance',
+          floor: floorMapImage ? 'Ground Floor' : 'N/A',
+          googleMapUrl: building.maps_url,
+          floorPlanImage: floorMapImage,
+          pinPosition: { x: 50, y: 50 },
+          roomType: 'building',
+          coordinates: null
+        };
+
+        navigate('/search-results', { state: { result: searchResultData } });
+      } else if (matched_type === 'campus' && campuses.length > 0) {
+        const campus = campuses[0];
+        
+        const searchResultData = {
+          className: `${event.title} - ${event.description || 'Class'}`,
+          campus: campus.name,
+          campusAddress: campus.address,
+          building: 'Campus',
+          room: 'Main Campus',
+          floor: 'Campus Map',
+          googleMapUrl: campus.maps_url,
+          floorPlanImage: campus.image ? (campus.image.startsWith('http') 
+            ? campus.image 
+            : `http://127.0.0.1:8000${campus.image}`) : null,
+          pinPosition: { x: 50, y: 50 },
+          roomType: 'campus',
+          coordinates: null
+        };
+
+        navigate('/search-results', { state: { result: searchResultData } });
+      } else {
+        // If no exact match, try a more general search or show message
+        console.log('No exact location found for:', event.location);
+        // You could show a toast message here or navigate to a general search
+      }
+    } catch (err) {
+      console.error('Error searching for location:', err);
+    }
+  };
+
 
   return (
     <div className="flex-1 flex flex-col px-8 py-8">
@@ -377,21 +487,26 @@ export default function Calendar({ onBack }: CalendarProps) {
                             <div className={`text-sm mb-1 ${isToday(day) ? 'text-green-600' : 'text-gray-700'}`}>
                               {day}
                             </div>
-                            <div className="space-y-1">
-                              {dayEvents.slice(0, 2).map((event) => (
-                                <div
-                                  key={event.id}
-                                  className={`text-xs px-2 py-1 rounded text-white truncate ${eventCategories[event.category].color}`}
-                                >
-                                  {event.title}
-                                </div>
-                              ))}
-                              {dayEvents.length > 2 && (
-                                <div className="text-xs text-gray-500">
-                                  +{dayEvents.length - 2} more
-                                </div>
-                              )}
-                            </div>
+                             <div className="space-y-1">
+                               {dayEvents.slice(0, 2).map((event) => (
+                                 <div
+                                   key={event.id}
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleEventClick(event);
+                                   }}
+                                   className={`text-xs px-2 py-1 rounded text-white truncate cursor-pointer hover:opacity-80 transition-opacity ${eventCategories[event.category].color}`}
+                                   title={`Click to view ${event.location} on map`}
+                                 >
+                                   {event.title}
+                                 </div>
+                               ))}
+                               {dayEvents.length > 2 && (
+                                 <div className="text-xs text-gray-500">
+                                   +{dayEvents.length - 2} more
+                                 </div>
+                               )}
+                             </div>
                           </>
                         )}
                       </div>
@@ -406,9 +521,13 @@ export default function Calendar({ onBack }: CalendarProps) {
                   {filteredEvents.length === 0 ? (
                     <p className="text-center text-muted-foreground">No events found for this view.</p>
                   ) : (
-                    filteredEvents.map((event) => (
-                      <div key={event.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div className="flex items-start justify-between">
+                     filteredEvents.map((event) => (
+                       <div 
+                         key={event.id} 
+                         className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                         onClick={() => handleEventClick(event)}
+                       >
+                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3">
                             <div className={`p-2 rounded-lg text-white ${eventCategories[event.category].color}`}>
                               {eventCategories[event.category].icon}
